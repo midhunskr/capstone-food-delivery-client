@@ -71,7 +71,7 @@ export const FrameComponent2 = ({
                   playStoreSeparator="4.5/5"
                 />
                 <GroupComponent
-                  playStoreIcon="/app-store-icon@2x.png"
+                  playStoreIcon="/app-store-icon.svg"
                   playStoreSeparator="4.8/5"
                 />
               </div>
