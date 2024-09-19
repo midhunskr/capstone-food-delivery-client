@@ -120,7 +120,7 @@ export const PaymentDetails = () => {
                 handler: function (response) {
                     alert(`Payment successful! Payment ID: ${response.razorpay_payment_id}`);
                     // Handle post-payment tasks, like updating the database
-                    navigate('/user/checkout/success'); // Redirect to success page
+                    navigate('/user'); // Redirect to success page
                 },
                 prefill: {
                     name: 'John Doe',
