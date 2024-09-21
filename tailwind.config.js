@@ -67,6 +67,7 @@ export default {
       'sm': '576px',
       'md': '960px',
       'lg': '1440px',
+      'xl': '1920px',
     },
   },
   corePlugins: {
