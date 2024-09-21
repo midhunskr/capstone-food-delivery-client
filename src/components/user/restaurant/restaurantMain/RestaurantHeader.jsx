@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { axiosInstance } from "../../../../config/axioInstance";
 import { useSelector, useDispatch } from 'react-redux'
-import { removeItemFromCart, decrement, increment, addToCart } from "../../../../redux/features/cartSlice";
+import { decrement, increment, addToCart } from "../../../../redux/features/cartSlice";
 
 export const RestaurantHeader = ({ className = "" }) => {
 
@@ -86,8 +86,6 @@ export const RestaurantHeader = ({ className = "" }) => {
     }
   }, [id]);
 
-  // console.log(restaurant.menuItems);
-
   // Function to handle button click and show quantity selector
   const handleAddToCart = (item) => {
 
@@ -100,20 +98,20 @@ export const RestaurantHeader = ({ className = "" }) => {
 
   };
 
-  //Handle duplicate item names
-  const groupedItems = cartItems.reduce((acc, item) => {
-    const existingItem = acc.find(i => i.name === item.name);
+//   //Handle duplicate item names
+//   const groupedItems = cartItems.reduce((acc, item) => {
+//     const existingItem = acc.find(i => i.name === item.name);
 
-    if (existingItem) {
-        // If an item with the same name exists, increment its quantity
-        existingItem.quantity += 1;
-    } else {
-        // Otherwise, add the item to the accumulator with a quantity of 1
-        acc.push({ ...item, quantity: 1 });
-    }
+//     if (existingItem) {
+//         // If an item with the same name exists, increment its quantity
+//         existingItem.quantity += 1;
+//     } else {
+//         // Otherwise, add the item to the accumulator with a quantity of 1
+//         acc.push({ ...item, quantity: 1 });
+//     }
 
-    return acc;
-}, []);
+//     return acc;
+// }, []);
 
 
   return (
@@ -317,7 +315,7 @@ export const RestaurantHeader = ({ className = "" }) => {
                           }}>
                            
                           {/* Button or Quantity Section */}
-                          {!groupedItems.find((i) => i._id === item._id) ? (
+                          {!cartItems.find((i) => i._id === item._id) ? (
                             <button
                               onClick={() => handleAddToCart(item)}
                               className="addToCartButton absolute top-[11.5rem] w-[9rem] h-[3rem] text-mid font-bold bg-bg-white text-tradewind border-[.3rem] border-solid border-white px-3 py-1 rounded-xl shadow-md z-2 cursor-pointer"
@@ -336,8 +334,8 @@ export const RestaurantHeader = ({ className = "" }) => {
                               </button>
 
                               <span className="quantityValue font-bold">
-                                {groupedItems.find(cartItem => cartItem._id === item._id)?.quantity || 1}
-                                {console.log(groupedItems)
+                                {cartItems.find(cartItem => cartItem._id === item._id)?.quantity || 1}
+                                {console.log(cartItems)
                                 }
                               </span>
 
@@ -354,12 +352,12 @@ export const RestaurantHeader = ({ className = "" }) => {
                           )}
 
                           {/* Sticky 'View Cart' Button */}
-                          {groupedItems.length > 0 && (
+                          {cartItems.length > 0 && (
                             <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 z-50">
                               <button
                                 onClick={() => {
                                   // Ensure all items have valid properties
-                                  const validItems = groupedItems.every(
+                                  const validItems = cartItems.every(
                                     (item) => item._id && item.name && item.price
                                   );
                                   if (validItems) {
@@ -370,7 +368,7 @@ export const RestaurantHeader = ({ className = "" }) => {
                                 }}
                                 className="bg-tradewind text-white px-[8rem] py-[1.3rem] rounded-t-2xl shadow-lg flex items-center gap-2 cursor-pointer cartButton"
                               >
-                                <b className="text-xl">View Cart ({groupedItems.reduce((a, b) => a + b.quantity, 0)})</b>
+                                <b className="text-xl">View Cart ({cartItems.reduce((a, b) => a + b.quantity, 0)})</b>
                                 
                               </button>
                             </div>

@@ -82,8 +82,8 @@ export const RestaurantListing = ({ className = "" }) => {
     <>
       <div className={`self-stretch flex flex-col items-center justify-center py-[0rem] px-[1.25rem] pb-[2rem] box-border max-w-full text-left text-[1.5rem] font-montserrat ${className}`}>
         <div className="h-full w-[70.5rem] flex flex-col items-start justify-start pt-[0rem] px-[0rem] pb-[0rem] box-border gap-[2.012rem] max-w-full mq450:h-auto mq750:gap-[1rem] mq750:pb-[11.688rem] mq750:box-border">
-          <div className="self-stretch flex flex-row items-start justify-between py-[0rem] pl-[0.5rem] pr-[0rem] box-border shrink-0 max-w-full gap-[1.25rem] mq450:flex-wrap">
-            <h3 className="m-0 w-[20.75rem] relative text-inherit text-dark leading-[121.88%] font-bold font-[inherit] inline-block shrink-0 max-w-full mq450:text-[1.188rem] mq450:leading-[1.438rem]">
+          <div className=" ">
+            <h3 className="m-0 w-[20.75rem] relative text-inherit text-dark font-bold inline-block shrink-0 max-w-full mq450:text-[1.188rem]">
               Top Restaurants near by
             </h3>
             <div className="w-[3.688rem] flex flex-col items-start justify-start pt-[0.062rem] px-[0rem] pb-[0rem]">

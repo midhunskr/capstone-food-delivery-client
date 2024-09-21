@@ -14,9 +14,9 @@ export const HeroSection = ({ className = "" }) => {
                             alt=""
                             src="/frame-53.svg"
                         />
-                        <div className="h-[694px] flex-1 overflow-hidden flex flex-row items-center justify-start flex-wrap content-center py-11 px-0 box-border relative gap-x-0 gap-y-40 max-w-full z-[1] mq450:h-auto mq450:min-h-[694]">
-                            <div className="w-[418px] absolute top-[121px] left-[0px] flex flex-col items-start justify-start pt-0 px-0 pb-[132px] box-border gap-[57.3px] max-w-full mq450:h-auto">
-                                <h1 className="relative text-inherit font-normal font-[inherit] shrink-0">
+                        <div className="h-[694px] flex-1 overflow-hidden md:flex items-center justify-start flex-wrap content-center py-11 px-0 box-border relative gap-x-0 gap-y-40 max-w-full z-[1] mq450:h-auto mq450:min-h-[694]">
+                            <div className="md:shrink-0 absolute top-[121px] left-[0px] flex flex-col items-start justify-start pt-0 px-0 pb-[132px] box-border gap-[57.3px] max-w-full mq450:h-auto">
+                                <h1 className="relative text-inherit font-normal font-[inherit]">
                                     <p className="m-0 text-37xl font-bold text-dark">Fastest</p>
                                     <p className="m-0 text-jaffa text-37xl font-bold">
                                         <span>Delivery</span>
@@ -45,12 +45,14 @@ export const HeroSection = ({ className = "" }) => {
                                 </div>
                                 <div className="w-[399px] hidden max-w-full" />
                             </div>
-                            <img
-                                className="h-[529px] w-[529px] absolute !m-[0] top-[44px] left-[578px] object-contain"
-                                loading="lazy"
-                                alt=""
-                                src="/hero-image@2x.png"
-                            />
+                            <div>
+                                <img
+                                    className="h-[529px] w-[529px] absolute !m-[0] top-[44px] left-[578px] object-contain"
+                                    loading="lazy"
+                                    alt=""
+                                    src="/hero-image@2x.png"
+                                />
+                            </div>
                             <div className="w-[528.5px] !m-[0] absolute left-[0px] top-[530px] flex flex-row items-start justify-start gap-[16.5px] max-w-full text-2xl text-black font-quicksand mq450:flex-wrap">
                                 <div className="flex-1 flex flex-row items-end justify-start relative gap-[41px] min-w-[248px] max-w-full z-[3]">
                                     <button className="cursor-pointer [border:none] py-[15.5px] px-[27px] bg-tradewind w-[264px] rounded-51xl flex flex-row items-start justify-start box-border whitespace-nowrap hover:bg-teal">

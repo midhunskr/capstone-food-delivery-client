@@ -5,12 +5,14 @@ import { CuisineListing } from './restaurant/CuisineListing'
 
 export const UserLanding = () => {
   return (
-    <div>
+    <div className='w-100'>
       <div className='bg-bg-white text-dark'>
-        <ItemScroller/>
-        <RestaurantListing/>
-        <CuisineListing/>
+        <div className='xr:w-'>
+          <ItemScroller />
         </div>
+        <RestaurantListing />
+        <CuisineListing />
+      </div>
     </div>
   )
 }

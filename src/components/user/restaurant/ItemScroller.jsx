@@ -14,7 +14,15 @@ export const ItemScroller = ({ className = "" }) => {
     { image: "/parotta-1@2x.png", discountPercentage: "10% OFF", upToAmount: "Up to ₹40", itemName: "Parotta" },
     { image: "/parotta-1@2x.png", discountPercentage: "10% OFF", upToAmount: "Up to ₹40", itemName: "Parotta" },
     { image: "/parotta-1@2x.png", discountPercentage: "10% OFF", upToAmount: "Up to ₹40", itemName: "Parotta" },
-    { image: "/parotta-1@2x.png", discountPercentage: "10% OFF", upToAmount: "Up to ₹40", itemName: "Parotta" }
+    { image: "/parotta-1@2x.png", discountPercentage: "10% OFF", upToAmount: "Up to ₹40", itemName: "Parotta" },
+    { image: "/parotta-1@2x.png", discountPercentage: "10% OFF", upToAmount: "Up to ₹40", itemName: "Parotta" },
+    { image: "/parotta-1@2x.png", discountPercentage: "10% OFF", upToAmount: "Up to ₹40", itemName: "Parotta" },
+    { image: "/parotta-1@2x.png", discountPercentage: "10% OFF", upToAmount: "Up to ₹40", itemName: "Parotta" },
+    { image: "/parotta-1@2x.png", discountPercentage: "10% OFF", upToAmount: "Up to ₹40", itemName: "Parotta" },
+    { image: "/parotta-1@2x.png", discountPercentage: "10% OFF", upToAmount: "Up to ₹40", itemName: "Parotta" },
+    { image: "/parotta-1@2x.png", discountPercentage: "10% OFF", upToAmount: "Up to ₹40", itemName: "Parotta" },
+    { image: "/parotta-1@2x.png", discountPercentage: "10% OFF", upToAmount: "Up to ₹40", itemName: "Parotta" },
+    { image: "/parotta-1@2x.png", discountPercentage: "10% OFF", upToAmount: "Up to ₹40", itemName: "Parotta" },
   ];
 
   const [scrollPosition, setScrollPosition] = useState(0)
@@ -54,52 +62,47 @@ export const ItemScroller = ({ className = "" }) => {
 
   return (
     <>
-      <div className={`self-stretch flex flex-col items-center justify-center py-[3rem] px-[1.25rem] pb-[0rem] box-border max-w-full text-left text-[1.5rem] font-montserrat ${className}`}>
-        <div className="h-full w-[70.5rem] flex flex-col items-start justify-start pt-[0rem] px-[0rem] pb-[0rem] box-border gap-[2.012rem] max-w-full mq450:h-auto mq750:gap-[1rem] mq750:pb-[11.688rem] mq750:box-border">
-          <div className="self-stretch flex flex-row items-start justify-between py-[0rem] pl-[0.5rem] pr-[0rem] box-border shrink-0 max-w-full gap-[1.25rem] mq450:flex-wrap">
-            <h3 className="m-0 w-[22.75rem] relative text-inherit text-dark leading-[121.88%] font-bold font-[inherit] inline-block shrink-0 max-w-full mq450:text-[1.188rem] mq450:leading-[1.438rem]">
-              Hello, what's on your mind?
-            </h3>
-            <div className="w-[3.688rem] flex flex-col items-start justify-start pt-[0.062rem] px-[0rem] pb-[0rem]">
-              <div className="leftAndRightNavigationButtons self-stretch h-[1.625rem] relative">
-                <button onClick={() => handleScroll(-300)} className="cursor-pointer buttonLeft absolute top-[0rem] left-[0rem] w-[1.625rem] h-[1.625rem] rounded-xl" style={{ backgroundColor: buttonColor.left }}>
-                  <img src="/arrow-left.svg" alt="" />
-                </button>
-                <button onClick={() => handleScroll(300)} className="cursor-pointer buttonRight absolute top-[0rem] left-[2.063rem] w-[1.625rem] h-[1.625rem] rounded-xl" style={{ backgroundColor: buttonColor.right }}>
+      <div className="px-[1rem] md:px-[5rem] lg:px-[44rem] pt-[2rem]">
+        <div className="flex items-center justify-between">
+          <h3 className="text-dark font-bold text-[1rem]">
+            Hello, what's on your mind?
+          </h3>
+          <div className="leftAndRightNavigationButtons flex gap-2">
+              <button onClick={() => handleScroll(-300)} className="cursor-pointer buttonLeft top-[0rem] left-[0rem] w-[1.625rem] h-[1.625rem] rounded-xl" style={{ backgroundColor: buttonColor.left }}>
+                <img src="/arrow-left.svg" alt="" />
+              </button>
+              <button onClick={() => handleScroll(300)} className="cursor-pointer buttonRight top-[0rem] left-[2.063rem] w-[1.625rem] h-[1.625rem] rounded-xl" style={{ backgroundColor: buttonColor.right }}>
                 <img src="/arrow-right.svg" alt="" />
-                </button>
-              </div>
+              </button>
+            </div>
+        </div>
+
+        {/* Scroller */}
+        <div className="scrollSection2 flex flex-col items-center py-[2rem] ">
+          <div
+            ref={containerRef}
+            className="scroll-container w-full"
+            style={{
+              // width: "900px",
+              overflowX: "scroll",
+              scrollBehavior: "smooth",
+            }}
+          >
+            <div className="flex flex-row justify-start gap-[2.7rem] max-w-full text-[1.413rem] text-white">
+              {SAMPLE_DATA.map((item, index) => (
+                <div key={index} className="w-[10rem] flex flex-col">
+                  <div className="itemCard overflow-hidden w-[6rem] h-[5rem] md:w-[8rem] md:h-[6rem]" style={{ backgroundImage: `url(${item.image})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+                  <div className="hotelLabel bottom-0 w-full text-center py-[.5rem]">
+                    <b className="font-normal text-item-tint text-lg">
+                      {item.itemName}
+                    </b>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </div>
-
-      {/* Scroller */}
-      <div className="scrollSection2 flex flex-col items-center py-[2rem]">
-        <div
-          ref={containerRef}
-          className="scroll-container w-[69.5rem]"
-          style={{
-            // width: "900px",
-            overflowX: "scroll",
-            scrollBehavior: "smooth",
-          }}
-        >
-          <div className="flex flex-row justify-start gap-[2.7rem] max-w-full text-[1.413rem] text-white">
-          {SAMPLE_DATA.map((item, index) => (
-            <div key={index} className="w-[10rem] flex flex-col">
-              <div className="itemCard overflow-hidden w-[8rem] h-[6rem]" style={{ backgroundImage: `url(${item.image})`, backgroundSize: 'cover', backgroundPosition: 'center' }}/>
-              <div className="hotelLabel bottom-0 w-full text-center py-[.5rem]">
-                <b className="font-normal text-item-tint text-lg">
-                  {item.itemName}
-                </b>
-              </div>
-            </div>
-          ))}
-          </div>
-        </div>
-      </div>
-
     </>
   );
 };

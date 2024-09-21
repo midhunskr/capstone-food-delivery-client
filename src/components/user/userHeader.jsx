@@ -26,21 +26,6 @@ export const UserHeader = ({ className = "" }) => {
   const cartItems = useSelector((state) => state.cart.cartItems)
   const navigate = useNavigate()
 
-  //Handle duplicate item names
-  const groupedItems = cartItems.reduce((acc, item) => {
-    const existingItem = acc.find(i => i.name === item.name);
-
-    if (existingItem) {
-      // If an item with the same name exists, increment its quantity
-      existingItem.quantity += 1;
-    } else {
-      // Otherwise, add the item to the accumulator with a quantity of 1
-      acc.push({ ...item, quantity: 1 });
-    }
-
-    return acc;
-  }, []);
-
   return (
     <header
       className={`self-stretch shadow-[0px_4px_45.6px_-19px_rgba(0,_0,_0,_0.25)] bg-bg-white overflow-visible flex flex-row items-start justify-center pt-[1.625rem] px-[1.25rem] pb-[1.5rem] box-border gap-[5.35rem] top-[0] z-[99] sticky max-w-full text-left text-[1.031rem] text-text-dark font-montserrat lg:gap-[2.688rem] mq750:gap-[1.313rem] ${className}`}
@@ -175,7 +160,7 @@ export const UserHeader = ({ className = "" }) => {
             />
             <div className="absolute pl-[.7rem] bottom-[.8rem]">
               <div className="w-[1.2rem] h-[1.2rem]  text-mid bg-tradewind text-bg-white rounded-full flex items-center justify-center">
-                <b >{groupedItems.reduce((a, b) => a + b.quantity, 0)}</b>
+                <b >{cartItems.reduce((a, b) => a + b.quantity, 0)}</b>
               </div>
             </div>
           </div>

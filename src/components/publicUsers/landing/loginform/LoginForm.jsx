@@ -93,6 +93,12 @@ export const LoginForm = () => {
               <button type="submit" className="bg-bg-white text-tradewind py-[.5rem] font-bold rounded-md text-xl border-[.14rem] border-solid border-tradewind w-full hover:bg-tradewind hover:text-bg-white hover:cursor-pointer">Login</button>
             </div>
           </form>
+          <p>Or Login using</p>
+          <div class="social-media">
+            <i class='bx bxl-facebook'></i>
+            <i class='bx bxl-google'></i>
+            <i class='bx bxl-twitter'></i>
+          </div>
           <p className="RegisterBtn" onClick={handleRegisterClick}>
             <a href="#">Register Now</a>
           </p>
@@ -142,6 +148,12 @@ export const LoginForm = () => {
               <button type="submit" className="bg-bg-white text-tradewind py-[.5rem] font-bold rounded-md text-xl border-[.14rem] border-solid border-tradewind w-full hover:bg-tradewind hover:text-bg-white hover:cursor-pointer">Register</button>
             </div>
           </form>
+          <p>Or Register using</p>
+          <div class="social-media">
+            <i class='bx bxl-facebook'></i>
+            <i class='bx bxl-google'></i>
+            <i class='bx bxl-twitter'></i>
+          </div>
           <p className="LoginBtn" onClick={handleLoginClick}>
             <a href="#">Login Now</a>
           </p>
@@ -150,3 +162,5 @@ export const LoginForm = () => {
     </div>
   );
 };
+
+

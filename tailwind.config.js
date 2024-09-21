@@ -62,27 +62,11 @@ export default {
       inherit: "inherit",
     },
     screens: {
-      mq1350: {
-        raw: "screen and (max-width: 1350px)",
-      },
-      mq1125: {
-        raw: "screen and (max-width: 1125px)",
-      },
-      mq1050: {
-        raw: "screen and (max-width: 1050px)",
-      },
-      mq1025: {
-        raw: "screen and (max-width: 1025px)",
-      },
-      mq800: {
-        raw: "screen and (max-width: 800px)",
-      },
-      mq750: {
-        raw: "screen and (max-width: 750px)",
-      },
-      mq450: {
-        raw: "screen and (max-width: 450px)",
-      },
+      'se': '375px',
+      'xr': '414px',
+      'sm': '576px',
+      'md': '960px',
+      'lg': '1440px',
     },
   },
   corePlugins: {
