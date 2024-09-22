@@ -56,7 +56,7 @@ export const CuisineListing = () => {
           <h3 className="text-dark font-bold text-[1.2rem] sm:text-[1.4rem]">
             Top Cuisines near by
           </h3>
-          <div className="leftAndRightNavigationButtons flex flex-row gap-2">
+          <div className="leftAndRightNavigationButtons flex flex-row gap-2 sm:hidden">
             <button onClick={() => handleScroll(-300)} className="cursor-pointer buttonLeft top-[0rem] left-[0rem] w-[1.625rem] h-[1.625rem] rounded-xl" style={{ backgroundColor: buttonColor.left }}>
               <img src="/arrow-left.svg" alt="" />
             </button>
@@ -76,7 +76,7 @@ export const CuisineListing = () => {
             }}
             className="scroll-container w-full"
           >
-            <div className="flex flex-row sm:gap-[2.818rem] text-[1.413rem]">
+            <div className="flex flex-row sm:gap-[4.818rem] text-[1.413rem]">
               {SAMPLE_DATA.map((item, index) => (
                 <div key={index} className="w-[15.2rem] shrink-0 flex flex-col items-start justify-start gap-[1.062rem]">
                   <div className="cuisineCard rounded-[1.5rem] relative overflow-hidden w-[13rem] sm:w-[15rem] h-[11rem] text-bg-white shadow-md" style={{ border: "8px solid white", backgroundImage: `url(${item.image})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>

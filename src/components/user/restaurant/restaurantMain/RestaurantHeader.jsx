@@ -5,7 +5,7 @@ import { axiosInstance } from "../../../../config/axioInstance";
 import { useSelector, useDispatch } from 'react-redux'
 import { decrement, increment, addToCart } from "../../../../redux/features/cartSlice";
 
-export const RestaurantHeader = ({ className = "" }) => {
+export const RestaurantHeader = () => {
 
   //Data
   const SAMPLE_DATA = [
@@ -98,138 +98,113 @@ export const RestaurantHeader = ({ className = "" }) => {
 
   };
 
-//   //Handle duplicate item names
-//   const groupedItems = cartItems.reduce((acc, item) => {
-//     const existingItem = acc.find(i => i.name === item.name);
-
-//     if (existingItem) {
-//         // If an item with the same name exists, increment its quantity
-//         existingItem.quantity += 1;
-//     } else {
-//         // Otherwise, add the item to the accumulator with a quantity of 1
-//         acc.push({ ...item, quantity: 1 });
-//     }
-
-//     return acc;
-// }, []);
-
-
   return (
-    <div>
-      <div className={`self-stretch flex flex-col items-center bg-bg-white text-dark justify-center py-[2rem] px-[1.25rem] pb-[2rem] box-border max-w-full text-left text-[1.5rem] font-montserrat ${className}`}>
-        <div className="h-full w-[70.5rem] flex flex-col items-start justify-start pt-[0rem] px-[0rem] pb-[0rem] box-border gap-[2.012rem] max-w-full mq450:h-auto mq750:gap-[1rem] mq750:pb-[11.688rem] mq750:box-border">
-          <div className="self-stretch flex flex-row items-start justify-between py-[0rem] pl-[0.5rem] pr-[0rem] box-border shrink-0 max-w-full gap-[1.25rem] mq450:flex-wrap">
-            {restaurant ? (
-              <h3 className="m-0 w-[22.75rem] relative text-inherit text-dark leading-[121.88%] font-bold font-[inherit] inline-block shrink-0 max-w-full mq450:text-[1.188rem] mq450:leading-[1.438rem]">
-                {restaurant.name}
-              </h3>
-            ) : (
-              <p>Loading restaurant data...</p>
-            )}
-          </div>
-          <div className="shrink w-full py-[1.2rem] flex items-center  px-[1.2rem] rounded-3xl" style={{ background: "linear-gradient(180deg, rgba(167,208,139,1) 0%, rgba(104,177,159,1) 100%)" }}>
-            <div className="bg-bg-white shrink px-[1rem] py-[1rem] w-full flex-row rounded-2xl shadow-lg">
-              <div className="flex items-center ">
-                <div className="w-[1.7rem] h-[1.7rem] rounded-full bg-tradewind flex justify-center">
-                  <img className="w-[1.2rem]" src="/star.svg" alt="" />
-                </div>
-                <div>
-                  <b className="text-sm px-[.5rem]">4.2 <b className="text-label-tint font-normal">(60 ratings)</b></b>
-                </div>
+    <>
+      <div className="px-[1rem] md:px-[2rem] lg:px-[10rem] xl:px-[25rem] py-[1rem] bg-bg-white text-dark">
+        <div className="flex items-center justify-between">
+          {restaurant ? (
+            <h3 className="text-dark font-bold text-[1.2rem] sm:text-[1.4rem] py-[1rem]">
+              {restaurant.name}
+            </h3>
+          ) : (
+            <p>Loading restaurant data...</p>
+          )}
+        </div>
+        
+        <div className="shrink w-full py-[1.2rem] flex items-center px-[1.2rem] rounded-3xl" style={{ background: "linear-gradient(180deg, rgba(167,208,139,1) 0%, rgba(104,177,159,1) 100%)" }}>
+          <div className="bg-bg-white shrink px-[1rem] py-[1rem] w-full flex-row rounded-2xl shadow-lg">
+            <div className="flex items-center ">
+              <div className="w-[1.7rem] h-[1.7rem] rounded-full bg-tradewind flex justify-center">
+                <img className="w-[1.2rem]" src="/star.svg" alt="" />
               </div>
-              <div className="text-sm text-jaffa py-[1rem]">
-                <b>{restaurant.description}</b>
-              </div>
-              <div className="flex items-center">
-                <div>
-                  <img className="w-[.5rem] pt-[.5rem]" src="/connecting-line.svg" alt="" />
-                </div>
-                <div className="flex flex-col gap-[2.5rem]">
-                  <div className="flex items-center">
-                    <b className="text-sm text-dark px-[1rem]">Outlet</b>
-                    <b className="text-sm text-label-tint font-normal">{restaurant.location}</b>
-                  </div>
-                  <b className="flex flex-row text-sm text-dark px-[1rem]">25-30 mins</b>
-                </div>
-              </div>
-              <div className="py-[1rem] flex items-center">
-                <img className="w-5 text-label-tint" src="/delivery.svg" alt="" />
-                <b className="text-sm text-label-tint font-light px-[1rem]">Order above 149 eligible for free delivery</b>
+              <div>
+                <b className="text-sm px-[.5rem]">4.2 <b className="text-label-tint font-normal">(60 ratings)</b></b>
               </div>
             </div>
-          </div>
-
-          <div>
-            <div className={`self-stretch flex flex-col items-center justify-center py-[1rem] px-[0rem] pb-[0rem] box-border max-w-full text-left text-[1.5rem] font-montserrat ${className}`}>
-              <div className="h-full w-[70.5rem] flex flex-col items-start justify-start pt-[0rem] px-[0rem] pb-[0rem] box-border gap-[2.012rem] max-w-full mq450:h-auto mq750:gap-[1rem] mq750:pb-[11.688rem] mq750:box-border">
-                <div className="self-stretch flex flex-row items-start justify-between py-[0rem] pl-[0.5rem] pr-[0rem] box-border shrink-0 max-w-full gap-[1.25rem] mq450:flex-wrap">
-                  <h3 className="m-0 w-[22.75rem] relative text-inherit text-dark leading-[121.88%] font-bold font-[inherit] inline-block shrink-0 max-w-full mq450:text-[1.188rem] mq450:leading-[1.438rem]">
-                    Deals for you
-                  </h3>
-                  <div className="w-[3.688rem] flex flex-col items-start justify-start pt-[0.062rem] px-[0rem] pb-[0rem]">
-                    <div className="leftAndRightNavigationButtons self-stretch h-[1.625rem] relative">
-                      <button onClick={() => handleScroll(-300)} className="cursor-pointer buttonLeft absolute top-[0rem] left-[0rem] w-[1.625rem] h-[1.625rem] rounded-xl" style={{ backgroundColor: buttonColor.left }}>
-                        <img src="/arrow-left.svg" alt="" />
-                      </button>
-                      <button onClick={() => handleScroll(300)} className="cursor-pointer buttonRight absolute top-[0rem] left-[2.063rem] w-[1.625rem] h-[1.625rem] rounded-xl" style={{ backgroundColor: buttonColor.right }}>
-                        <img src="/arrow-right.svg" alt="" />
-                      </button>
-                    </div>
-                  </div>
+            <div className="text-sm text-jaffa py-[1rem]">
+              <b>{restaurant.description}</b>
+            </div>
+            <div className="flex items-center">
+              <div>
+                <img className="w-[.5rem] pt-[.5rem]" src="/connecting-line.svg" alt="" />
+              </div>
+              <div className="flex flex-col gap-[2.5rem]">
+                <div className="flex items-center">
+                  <b className="text-sm text-dark px-[1rem]">Outlet</b>
+                  <b className="text-sm text-label-tint font-normal">{restaurant.location}</b>
                 </div>
+                <b className="flex flex-row text-sm text-dark px-[1rem]">25-30 mins</b>
               </div>
             </div>
+            <div className="py-[1rem] flex items-center">
+              <img className="w-5 text-label-tint" src="/delivery.svg" alt="" />
+              <b className="text-sm text-label-tint font-light px-[1rem]">Order above 149 eligible for free delivery</b>
+            </div>
+          </div>
+        </div>
 
-            <div className="scrollSection2 flex flex-col items-center py-[2rem]">
-              <div
-                ref={containerRef}
-                className="scroll-container w-[69.5rem]"
-                style={{
-                  overflowX: "scroll",
-                  scrollBehavior: "smooth",
-                }}
-              >
-                <div className="flex flex-row justify-start gap-[10rem] max-w-full text-[1.413rem] text-white">
-                  {SAMPLE_DATA.map((item, idx) => (
-                    <div key={`${item.itemName}-${idx}`} className="w-[10rem] flex flex-col">
-                      <div className="w-[18rem] rounded-2xl h-[7rem] border-[.2rem] border-solid border-selection-tint" />
-                    </div>
-                  ))}
+        <div className="flex items-center justify-between pt-[2rem]">
+          <h3 className="text-dark font-bold text-[1.2rem] sm:text-[1.4rem]">
+            Deals for you
+          </h3>
+          <div className="leftAndRightNavigationButtons flex flex-row gap-2">
+            <button onClick={() => handleScroll(-320)} className="cursor-pointer buttonLeft top-[0rem] left-[0rem] w-[1.625rem] h-[1.625rem] rounded-xl" style={{ backgroundColor: buttonColor.left }}>
+              <img src="/arrow-left.svg" alt="" />
+            </button>
+            <button onClick={() => handleScroll(320)} className="cursor-pointer buttonRight top-[0rem] left-[2.063rem] w-[1.625rem] h-[1.625rem] rounded-xl" style={{ backgroundColor: buttonColor.right }}>
+              <img src="/arrow-right.svg" alt="" />
+            </button>
+          </div>
+        </div>
+
+        <div className="scrollSection2 flex flex-col py-[1rem]">
+          <div
+            ref={containerRef}
+            className="scroll-container w-full"
+            style={{
+              overflowX: "scroll",
+              scrollBehavior: "smooth",
+            }}
+          >
+            <div className="flex flex-row justify-start gap-[10rem] max-w-full text-[1.413rem] text-white">
+              {SAMPLE_DATA.map((item, idx) => (
+                <div key={`${item.itemName}-${idx}`} className="w-[10rem] flex flex-col">
+                  <div className="w-[18rem] rounded-2xl h-[7rem] border-[.2rem] border-solid border-selection-tint" />
                 </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
 
         {/* Menu Section */}
-        <div className="flex items-center justify-center gap-4">
-          <div className="w-[31rem] h-[.1rem] bg-selection-tint" />
+        <div className="flex items-center justify-center gap-4 py-[2rem]">
+          <div className="w-[7rem] sm:w-[31rem] h-[.1rem] bg-selection-tint" />
           <div>
             <b>M E N U</b>
           </div>
-          <div className="w-[31rem] h-[.1rem] bg-selection-tint" />
+          <div className="w-[7rem] sm:w-[31rem] h-[.1rem] bg-selection-tint" />
         </div>
 
-        <div className={`w-[70.5rem] flex flex-col py-[1rem] px-[0rem] pb-[0rem] box-border max-w-full text-left text-[1.5rem] font-montserrat ${className}`}>
+        <div className="w-[70.5rem] flex flex-col px-[0rem] pb-[0rem] box-border max-w-full text-left text-[1.5rem] font-montserrat">
           <div className="h-full pt-[0rem] px-[0rem] pb-[0rem] box-border gap-[2.012rem] max-w-full">
-            <h3 className="text-inherit text-dark font-bold font-[inherit] shrink-0 max-w-full px-[.5rem]">
+            <h3 className="text-dark font-bold text-[1.2rem] sm:text-[1.4rem]">
               Top Picks
             </h3>
           </div>
 
-          <div className="flex justify-between py-[2rem]">
+          <div className="flex flex-col gap-6 sm:flex sm:flex-row sm:justify-between py-[1rem]">
             {restaurant.menuItems && restaurant.menuItems.length > 0 ? (
               // Shuffle the menu items array and then slice to get up to 3 items
               [...restaurant.menuItems]
                 .sort(() => Math.random() - 0.5) // Shuffle array
                 .slice(0, 3) // Take up to 3 items
                 .map((item) => (
-                  <div key={item._id} className="flex-col topPicksCard w-[20rem] h-[11rem] flex relative overflow-hidden rounded-3xl border-[.2rem] border-solid text-bg-white shadow-md" style={{
+                  <div key={item._id} className="flex-col topPicksCard sm:w-[20rem] h-[7rem] sm:h-[11rem] flex relative overflow-hidden rounded-3xl border-[.2rem] border-solid text-bg-white shadow-md" style={{
                     border: "8px solid white", backgroundImage: `url(${item.image})`, backgroundSize: 'cover',
                     backgroundPosition: 'center',
                   }}>
-                    <b className="top-[5.8rem] left-[1rem] relative inline-block z-[2] text-2xl">{item.name.length < 16 ? item.name : (item.name.slice(0, 15) + '....')}</b>
-                    <div className="top-[6rem] left-[1rem] text-mid relative z-[2]">
+                    <b className="top-[2rem] left-[.7rem] sm:top-[5.8rem] sm:left-[1rem] relative inline-block z-[2] text-2xl">{item.name.length < 16 ? item.name : (item.name.slice(0, 15) + '....')}</b>
+                    <div className="top-[2rem] left-[.7rem] sm:top-[6rem] sm:left-[1rem] text-mid relative z-[2]">
                       {"₹" + item.price || "Up to ₹50"} {/* Sample default */}
                     </div>
                   </div>
@@ -313,7 +288,7 @@ export const RestaurantHeader = ({ className = "" }) => {
                             backgroundPosition: 'left center',
                             backgroundRepeat: "no-repeat"
                           }}>
-                           
+
                           {/* Button or Quantity Section */}
                           {!cartItems.find((i) => i._id === item._id) ? (
                             <button
@@ -369,7 +344,7 @@ export const RestaurantHeader = ({ className = "" }) => {
                                 className="bg-tradewind text-white px-[8rem] py-[1.3rem] rounded-t-2xl shadow-lg flex items-center gap-2 cursor-pointer cartButton"
                               >
                                 <b className="text-xl">View Cart ({cartItems.reduce((a, b) => a + b.quantity, 0)})</b>
-                                
+
                               </button>
                             </div>
                           )}
@@ -383,7 +358,7 @@ export const RestaurantHeader = ({ className = "" }) => {
           </div>
         </div>
       </div>
-    </div >
+    </>
   )
 }
 
