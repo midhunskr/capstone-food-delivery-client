@@ -62,19 +62,19 @@ export const ItemScroller = ({ className = "" }) => {
 
   return (
     <>
-      <div className="px-[1rem] md:px-[2rem] lg:px-[10rem] xl:px-[29rem] pt-[2rem]">
+      <div className="px-[1rem] md:px-[2rem] lg:px-[10rem] xl:px-[25rem] pt-[2rem]">
         <div className="flex items-center justify-between">
-          <h3 className="text-dark font-bold text-[1rem]">
+          <h3 className="text-dark font-bold text-[1.2rem] w-[10rem] sm:text-[1.4rem] sm:w-full">
             Hello, what's on your mind?
           </h3>
           <div className="leftAndRightNavigationButtons flex gap-2">
-              <button onClick={() => handleScroll(-300)} className="cursor-pointer buttonLeft top-[0rem] left-[0rem] w-[1.625rem] h-[1.625rem] rounded-xl" style={{ backgroundColor: buttonColor.left }}>
-                <img src="/arrow-left.svg" alt="" />
-              </button>
-              <button onClick={() => handleScroll(300)} className="cursor-pointer buttonRight top-[0rem] left-[2.063rem] w-[1.625rem] h-[1.625rem] rounded-xl" style={{ backgroundColor: buttonColor.right }}>
-                <img src="/arrow-right.svg" alt="" />
-              </button>
-            </div>
+            <button onClick={() => handleScroll(-300)} className="cursor-pointer buttonLeft top-[0rem] left-[0rem] w-[1.625rem] h-[1.625rem] rounded-xl" style={{ backgroundColor: buttonColor.left }}>
+              <img src="/arrow-left.svg" alt="" />
+            </button>
+            <button onClick={() => handleScroll(300)} className="cursor-pointer buttonRight top-[0rem] left-[2.063rem] w-[1.625rem] h-[1.625rem] rounded-xl" style={{ backgroundColor: buttonColor.right }}>
+              <img src="/arrow-right.svg" alt="" />
+            </button>
+          </div>
         </div>
 
         {/* Scroller */}
@@ -88,7 +88,7 @@ export const ItemScroller = ({ className = "" }) => {
               scrollBehavior: "smooth",
             }}
           >
-            <div className="flex flex-row justify-start gap-[2.7rem] max-w-full text-[1.413rem] text-white">
+            <div className="flex flex-row justify-start gap-[2.7rem] max-w-full text-[1.413rem]">
               {SAMPLE_DATA.map((item, index) => (
                 <div key={index} className="w-[10rem] flex flex-col">
                   <div className="itemCard overflow-hidden w-[6rem] h-[5rem] md:w-[8rem] md:h-[6rem]" style={{ backgroundImage: `url(${item.image})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />

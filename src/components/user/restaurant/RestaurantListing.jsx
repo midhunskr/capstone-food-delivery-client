@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import toast from "react-hot-toast";
 import { axiosInstance } from "../../../config/axioInstance";
 
-export const RestaurantListing = ({ className = "" }) => {
+export const RestaurantListing = () => {
   // //Setting States for fetching Restaurant data
   const [restaurants, setRestaurants] = useState([])
 
@@ -24,13 +24,13 @@ export const RestaurantListing = ({ className = "" }) => {
       } else {
         setRestaurants([]); // Fallback to an empty array if restaurants is not available
       }
-      
+
     } catch (error) {
       console.log(error);
       toast.error('Error fetching restaurant data');
     }
   }
-  
+
   useEffect(() => {
     fetchRestaurants()
   }, [])
@@ -76,89 +76,84 @@ export const RestaurantListing = ({ className = "" }) => {
       right: atRightLimit ? '#E0E0E0' : '#CACACA',
     });
   }, [scrollPosition]);
-  
+
 
   return (
     <>
-      <div className={`self-stretch flex flex-col items-center justify-center py-[0rem] px-[1.25rem] pb-[2rem] box-border max-w-full text-left text-[1.5rem] font-montserrat ${className}`}>
-        <div className="h-full w-[70.5rem] flex flex-col items-start justify-start pt-[0rem] px-[0rem] pb-[0rem] box-border gap-[2.012rem] max-w-full mq450:h-auto mq750:gap-[1rem] mq750:pb-[11.688rem] mq750:box-border">
-          <div className=" ">
-            <h3 className="m-0 w-[20.75rem] relative text-inherit text-dark font-bold inline-block shrink-0 max-w-full mq450:text-[1.188rem]">
-              Top Restaurants near by
-            </h3>
-            <div className="w-[3.688rem] flex flex-col items-start justify-start pt-[0.062rem] px-[0rem] pb-[0rem]">
-              <div className="leftAndRightNavigationButtons self-stretch h-[1.625rem] relative">
-                <button onClick={() => handleScroll(-300)} className="cursor-pointer buttonLeft absolute top-[0rem] left-[0rem] w-[1.625rem] h-[1.625rem] rounded-xl" style={{ backgroundColor: buttonColor.left }}>
-                  <img src="/arrow-left.svg" alt="" />
-                </button>
-                <button onClick={() => handleScroll(300)} className="cursor-pointer buttonRight absolute top-[0rem] left-[2.063rem] w-[1.625rem] h-[1.625rem] rounded-xl" style={{ backgroundColor: buttonColor.right }}>
-                <img src="/arrow-right.svg" alt="" />
-                </button>
-              </div>
-            </div>
+      <div className="px-[1rem] md:px-[2rem] lg:px-[10rem] xl:px-[25rem] pt-[1rem]">
+        <div className="flex items-center justify-between">
+          <h3 className="text-dark font-bold text-[1.2rem] sm:text-[1.4rem]">
+            Top Restaurants near by
+          </h3>
+          <div className="leftAndRightNavigationButtons flex flex-row gap-2">
+            <button onClick={() => handleScroll(-300)} className="cursor-pointer buttonLeft top-[0rem] left-[0rem] w-[1.625rem] h-[1.625rem] rounded-xl" style={{ backgroundColor: buttonColor.left }}>
+              <img src="/arrow-left.svg" alt="" />
+            </button>
+            <button onClick={() => handleScroll(300)} className="cursor-pointer buttonRight top-[0rem] left-[2.063rem] w-[1.625rem] h-[1.625rem] rounded-xl" style={{ backgroundColor: buttonColor.right }}>
+              <img src="/arrow-right.svg" alt="" />
+            </button>
           </div>
         </div>
-      </div>
 
-      {/* Scroller */}
-      <div className="scrollSection2 flex flex-col items-center pb-[3rem]">
-        <div
-          ref={containerRef}
-          className="scroll-container w-[69.5rem]"
-          style={{
-            // width: "900px",
-            overflowX: "scroll",
-            scrollBehavior: "smooth",
-          }}
-        >
-          <div className="flex flex-row gap-[2.818rem] shrink-0 max-w-full text-[1.413rem] text-white">
-          {restaurants.map((item) => {
+        {/* Scroller */}
+        <div className="scrollSection2 flex flex-col py-[2rem]">
+          <div
+            ref={containerRef}
+            className="scroll-container w-full"
+            style={{
+              overflowX: "scroll",
+              scrollBehavior: "smooth",
+            }}
+          >
+            <div className="flex flex-row justify-start sm:gap-[2.7rem] text-[1.413rem]">
+              {restaurants.map((item) => {
 
-            const backgroundImageUrl = item.menuItems[0]?.image
+                const backgroundImageUrl = item.menuItems[0]?.image
 
-            return (
-              <div key={item._id} className="w-[15.2rem] shrink-0 flex flex-col items-start justify-start gap-[1.062rem]">
-                <Link to={`restaurant/${item._id}`}>
-                  <div
-                    className="restaurantCard restaurant1 rounded-[1.5rem] relative overflow-hidden w-[15rem] h-[11rem] text-bg-white shadow-md"
-                    style={{
-                      border: "8px solid white",
-                      backgroundImage: `url(${backgroundImageUrl})`, // map background image
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                    }}
-                    >
-                    <b className="w-[6.3rem] top-[6rem] left-[1rem] relative inline-block z-[2] mq450:text-[1.125rem]">
-                      {item.discountPercentage || "10% OFF"} {/* Sample default */}
-                    </b>
-                    <div className="w-[5.669rem] top-[7.7rem] right-[5.2rem] relative text-[0.869rem] font-semibold inline-block z-[2]">
-                      {item.upToAmount || "Up to ₹50"} {/* Sample default */}
+                return (
+                  <div key={item._id} className="w-[15.2rem] shrink-0 flex flex-col items-start justify-start gap-[1.062rem]">
+                    <Link to={`restaurant/${item._id}`}>
+                      <div
+                        className="restaurantCard restaurant1 rounded-[1.5rem] relative overflow-hidden sm:w-[15rem] h-[11rem] text-bg-white shadow-md"
+                        style={{
+                          border: "8px solid white",
+                          backgroundImage: `url(${backgroundImageUrl})`, // map background image
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                        }}
+                      >
+                        <b className="w-[6.3rem] top-[6rem] left-[1rem] relative inline-block z-[2] mq450:text-[1.125rem]">
+                          {item.discountPercentage || "10% OFF"} {/* Sample default */}
+                        </b>
+                        <div className="w-[5.669rem] top-[7.7rem] right-[5.2rem] relative text-[0.869rem] font-semibold inline-block z-[2]">
+                          {item.upToAmount || "Up to ₹50"} {/* Sample default */}
+                        </div>
+                      </div>
+                    </Link>
+                    <div className="flex flex-col items-start justify-start gap-[0.75rem text-dark">
+                      <div className="flex flex-row items-start justify-start">
+                        <b className="relative mq450:text-[1.125rem] left-[.5rem] text-[1.2rem] sm:text-[1.4rem]">
+                          {item.name.length > 14 ? `${item.name.slice(0, 14)}....` : item.name} {/* Restaurant name */}
+                        </b>
+                      </div>
+                      <div className="flex flex-row items-start justify-start gap-[0.437rem] text-[0.975rem] text-label-tint pt-[.5rem]">
+                        <img
+                          className="h-[1.45rem] w-[1.519rem] left-[.5rem] relative object-cover min-h-[1.438rem]"
+                          loading="lazy"
+                          alt=""
+                          src="/frame-3830@2x.png"
+                        />
+                        <div className="flex flex-col items-start justify-start pt-[0.125rem] px-[0rem] pb-[0rem]">
+                          <b className="relative inline-block min-w-[3.581rem] left-[.7rem] font-normal">
+                            {getRandomETA()} mins
+                          </b>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </Link>
-                <div className="flex flex-col items-start justify-start gap-[0.75rem text-dark">
-                  <div className="flex flex-row items-start justify-start">
-                    <b className="relative mq450:text-[1.125rem] left-[.5rem] ">
-                    {item.name.length > 14 ? `${item.name.slice(0, 14)}....` : item.name} {/* Restaurant name */}
-                    </b>
-                  </div>
-                  <div className="flex flex-row items-start justify-start gap-[0.437rem] text-[0.975rem] text-label-tint pt-[.5rem]">
-                    <img
-                      className="h-[1.45rem] w-[1.519rem] left-[.5rem] relative object-cover min-h-[1.438rem]"
-                      loading="lazy"
-                      alt=""
-                      src="/frame-3830@2x.png"
-                    />
-                    <div className="flex flex-col items-start justify-start pt-[0.125rem] px-[0rem] pb-[0rem]">
-                      <b className="relative inline-block min-w-[3.581rem] left-[.7rem] font-normal">
-                      {getRandomETA()} mins
-                      </b>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>

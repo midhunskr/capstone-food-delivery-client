@@ -1,7 +1,8 @@
 import PropTypes from "prop-types";
 import './RestaurantAndCuisine.css'
+import { useEffect, useRef, useState } from "react";
 
-export const CuisineListing = ({ className = "" }) => {
+export const CuisineListing = () => {
 
   //Data
   const SAMPLE_DATA = [
@@ -11,44 +12,85 @@ export const CuisineListing = ({ className = "" }) => {
     { image: "/sea-food.png", cuisineName: "Seafood", hotelName: "Arabian Palace" },
   ];
 
+  //Scroller
+  const [scrollPosition, setScrollPosition] = useState(0)
+  const [buttonColor, setButtonColor] = useState({ left: '#CACACA', right: '#CACACA' })
+
+  const containerRef = useRef();
+
+  const handleScroll = (scrollAmount) => {
+    const container = containerRef.current;
+
+    // Calculate new scroll position with boundary checks
+    const newScrollPosition = Math.max(
+      0,
+      Math.min(
+        scrollPosition + scrollAmount,
+        container.scrollWidth - container.clientWidth
+      )
+    );
+
+    // Update state and apply new scroll position
+    setScrollPosition(newScrollPosition);
+    container.scrollLeft = newScrollPosition;
+  };
+
+  //Find scroll limit for changing scroll navigation buttons color accordingly
+  useEffect(() => {
+    const container = containerRef.current;
+
+    // Check if the scroll position is at the left or right limit
+    const atLeftLimit = container.scrollLeft === 0;
+    const atRightLimit = container.scrollLeft === container.scrollWidth - container.clientWidth;
+
+    setButtonColor({
+      left: atLeftLimit ? '#E0E0E0' : '#CACACA',
+      right: atRightLimit ? '#E0E0E0' : '#CACACA',
+    });
+  }, [scrollPosition]);
+
   return (
     <>
-      <div className={`self-stretch flex flex-col items-center justify-center py-[0rem] px-[1.25rem] pb-[2rem] box-border max-w-full text-left text-[1.5rem] font-montserrat ${className}`}>
-        <div className="h-full w-[70.5rem] flex flex-col items-start justify-start pt-[0rem] px-[0rem] pb-[0rem] box-border gap-[2.012rem] max-w-full mq450:h-auto mq750:gap-[1rem] mq750:pb-[11.688rem] mq750:box-border">
-          <div className="self-stretch flex flex-row items-start justify-between py-[0rem] pl-[0.5rem] pr-[0rem] box-border shrink-0 max-w-full gap-[1.25rem] mq450:flex-wrap">
-            <h3 className="m-0 w-[20.75rem] relative text-dark text-inherit leading-[121.88%] font-bold font-[inherit] inline-block shrink-0 max-w-full mq450:text-[1.188rem] mq450:leading-[1.438rem]">
-              Top Cuisines near by
-            </h3>
-            <div className="w-[3.688rem] flex flex-col items-start justify-start pt-[0.062rem] px-[0rem] pb-[0rem]">
+      <div className="px-[1rem] md:px-[2rem] lg:px-[10rem] xl:px-[25rem] pt-[1rem]">
+        <div className="flex items-center justify-between">
+          <h3 className="text-dark font-bold text-[1.2rem] sm:text-[1.4rem]">
+            Top Cuisines near by
+          </h3>
+          <div className="leftAndRightNavigationButtons flex flex-row gap-2">
+            <button onClick={() => handleScroll(-300)} className="cursor-pointer buttonLeft top-[0rem] left-[0rem] w-[1.625rem] h-[1.625rem] rounded-xl" style={{ backgroundColor: buttonColor.left }}>
+              <img src="/arrow-left.svg" alt="" />
+            </button>
+            <button onClick={() => handleScroll(300)} className="cursor-pointer buttonRight top-[0rem] left-[2.063rem] w-[1.625rem] h-[1.625rem] rounded-xl" style={{ backgroundColor: buttonColor.right }}>
+              <img src="/arrow-right.svg" alt="" />
+            </button>
+          </div>
+        </div>
+
+        {/* Scroller */}
+        <div className="scrollSection2 flex flex-col py-[2rem]">
+          <div
+            ref={containerRef}
+            style={{
+              overflowX: "scroll",
+              scrollBehavior: "smooth",
+            }}
+            className="scroll-container w-full"
+          >
+            <div className="flex flex-row sm:gap-[2.818rem] text-[1.413rem]">
+              {SAMPLE_DATA.map((item, index) => (
+                <div key={index} className="w-[15.2rem] shrink-0 flex flex-col items-start justify-start gap-[1.062rem]">
+                  <div className="cuisineCard rounded-[1.5rem] relative overflow-hidden w-[13rem] sm:w-[15rem] h-[11rem] text-bg-white shadow-md" style={{ border: "8px solid white", backgroundImage: `url(${item.image})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+                    <b className="w-[10rem] top-[7rem] left-[1rem] relative inline-block z-[2] mq450:text-[1.125rem]">
+                      {item.cuisineName}
+                    </b>
+                  </div>
+                  <div className="flex flex-col items-start justify-start gap-[0.75rem]" />
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </div>
-
-      {/* Scroller */}
-      <div className="scrollSection2 flex flex-col items-center pb-[3rem]">
-        <div
-          className="scroll-container w-[69.5rem]"
-          style={{
-            overflowX: "scroll",
-            scrollBehavior: "smooth",
-          }}
-        >
-          <div className="flex flex-row gap-[2.818rem] shrink-0 max-w-full text-[1.413rem] text-white">
-            {SAMPLE_DATA.map((item, index) => (
-              <div key={index} className="w-[15.2rem] shrink-0 flex flex-col items-start justify-start gap-[1.062rem]">
-                <div className="cuisineCard shadow-md rounded-[1.5rem] relative overflow-hidden w-[15rem] h-[11rem]" style={{ border: "8px solid white", backgroundImage: `url(${item.image})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
-                  <b className="w-[10rem] top-[7rem] left-[1rem] relative inline-block z-[2] mq450:text-[1.125rem]">
-                    {item.cuisineName}
-                  </b>
-                </div>
-                <div className="flex flex-col items-start justify-start gap-[0.75rem]"/>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
     </>
   );
 };
