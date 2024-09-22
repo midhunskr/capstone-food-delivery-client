@@ -62,7 +62,7 @@ export const ItemScroller = ({ className = "" }) => {
 
   return (
     <>
-      <div className="px-[1rem] md:px-[5rem] lg:px-[44rem] pt-[2rem]">
+      <div className="px-[1rem] md:px-[2rem] lg:px-[10rem] xl:px-[44rem] pt-[2rem]">
         <div className="flex items-center justify-between">
           <h3 className="text-dark font-bold text-[1rem]">
             Hello, what's on your mind?

@@ -65,7 +65,7 @@ export default {
       'se': '375px',
       'xr': '414px',
       'sm': '576px',
-      'md': '960px',
+      'md': '1024px',
       'lg': '1440px',
       'xl': '1920px',
     },
