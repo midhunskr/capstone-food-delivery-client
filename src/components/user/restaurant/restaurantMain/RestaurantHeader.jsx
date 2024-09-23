@@ -110,7 +110,7 @@ export const RestaurantHeader = () => {
             <p>Loading restaurant data...</p>
           )}
         </div>
-        
+
         <div className="shrink w-full py-[1.2rem] flex items-center px-[1.2rem] rounded-3xl" style={{ background: "linear-gradient(180deg, rgba(167,208,139,1) 0%, rgba(104,177,159,1) 100%)" }}>
           <div className="bg-bg-white shrink px-[1rem] py-[1rem] w-full flex-row rounded-2xl shadow-lg">
             <div className="flex items-center ">
@@ -199,7 +199,7 @@ export const RestaurantHeader = () => {
                 .sort(() => Math.random() - 0.5) // Shuffle array
                 .slice(0, 3) // Take up to 3 items
                 .map((item) => (
-                  <div key={item._id} className="flex-col topPicksCard sm:w-[20rem] h-[7rem] sm:h-[11rem] flex relative overflow-hidden rounded-3xl border-[.2rem] border-solid text-bg-white shadow-md" style={{
+                  <div key={item._id} className="flex-col topPicksCard sm:w-[20rem] h-[7rem] sm:h-[11rem] flex relative overflow-hidden rounded-3xl text-bg-white shadow-md" style={{
                     border: "8px solid white", backgroundImage: `url(${item.image})`, backgroundSize: 'cover',
                     backgroundPosition: 'center',
                   }}>
@@ -214,7 +214,7 @@ export const RestaurantHeader = () => {
             )}
           </div>
 
-          <div className="divide-y-[.1rem] divide-solid divide-selection-tint">
+          <div className="divide-y-[.3rem] rounded-md divide-solid divide-selection-tint">
             {[
               {
                 title: "Recommended",
@@ -253,34 +253,49 @@ export const RestaurantHeader = () => {
                     </b>
                   </div>
                   <div className="collapse-content text-dark">
-                    {filteredItems.map(item => (
-                      <div key={item._id} className="flex items-center justify-between py-[2rem]">
+                    {filteredItems.map((item, index) => (
+                      <div
+                      key={item._id}
+                      className={`flex flex-col sm:flex sm:flex-row sm:items-center justify-between pb-[2rem] sm:pb-[4rem] py-[2rem] ${
+                        index !== filteredItems.length - 1 ? 'border-b border-solid border-selection-tint' : ''
+                      }`}
+                    >
                         {/* Left Content Section */}
-                        <div className="flex flex-col items-start gap-2 w-2/3">
+                        <div className="flex flex-col items-start gap-2 sm:w-2/3">
                           <div className="flex gap-2 font-bold">
                             <img className="w-5" src={section.img(item)} alt={section.alt(item)} />
                             {item.name}
                           </div>
                           <div className="text-lg flex items-center gap-3 py-2">
                             ₹{item.price}
-                            <div className="text-label-tint font-bold flex gap-1">
+                            <div className="sm:hidden flex gap-2">
+                              <svg className="w-5 h-5 fill-tradewind" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                              </svg>
+                              <b className="text-lg font-medium">4.2 (12)</b>
+                            </div>
+                            <div className="hidden text-label-tint font-bold sm:flex gap-1">
                               <img className="w-5" src="/offer-tag.svg" alt="" />
                               <b>50% OFF USE FIRSTBITE</b>
                             </div>
                           </div>
-                          <div className="flex gap-2">
+                          <div className="sm:hidden text-label-tint font-bold flex gap-1 text-[1rem] pb-[2rem] sm:pb-[0rem]">
+                            <img className="w-5" src="/offer-tag.svg" alt="" />
+                            <b>50% OFF USE FIRSTBITE</b>
+                          </div>
+                          <div className="hidden sm:flex gap-2">
                             <svg className="w-5 h-5 fill-tradewind" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                               <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
                             </svg>
                             <b className="text-lg font-medium">4.2 (12)</b>
                           </div>
-                          <div className="text-mid text-label-tint w-full py-5">
+                          <div className="hidden sm:inline-block text-mid text-label-tint sm:w-full py-5">
                             {item.description}
                           </div>
                         </div>
 
                         {/* Right Background Image Section with Button */}
-                        <div className="flex flex-col items-center justify-end relative w-[14rem] h-[14rem] rounded-3xl overflow-visible  shadow-md z-1"
+                        <div className="flex flex-col items-center justify-end relative h-[10rem] sm:w-[14rem] sm:h-[14rem] rounded-3xl overflow-visible shadow-md z-1 "
                           style={{
                             border: "10px solid white",
                             backgroundImage: `url(${item.image})`,
@@ -293,12 +308,14 @@ export const RestaurantHeader = () => {
                           {!cartItems.find((i) => i._id === item._id) ? (
                             <button
                               onClick={() => handleAddToCart(item)}
-                              className="addToCartButton absolute top-[11.5rem] w-[9rem] h-[3rem] text-mid font-bold bg-bg-white text-tradewind border-[.3rem] border-solid border-white px-3 py-1 rounded-xl shadow-md z-2 cursor-pointer"
-                            >
-                              <b>Add to Cart</b>
+                              className="addToCartButton absolute top-[5rem] left-[14.5rem] w-[3rem] h-[3rem] flex items-center justify-center sm:left-[2rem] sm:top-[11.5rem] sm:w-[9rem] sm:h-[3rem] text-mid font-bold bg-tradewind text-bg-white sm:bg-bg-white sm:text-tradewind border-[.3rem] border-solid border-white px-3 py-1 rounded-full sm:rounded-xl shadow-md z-2 cursor-pointer"
+                            > 
+                              <img className="w-[1.5rem] sm:hidden" src="/add-symbol.svg" alt="" />
+                              <b className="hidden sm:inline-block">Add to Cart</b>
                             </button>
+                            
                           ) : (
-                            <div className="absolute top-[11.5rem] w-[9rem] h-[3rem] flex items-center px-[1rem] justify-between text-tradewind text-mid font-bold gap-2 bg-bg-white border-[.3rem] border-solid border-white rounded-xl shadow-lg cursor-pointer">
+                            <div className="absolute top-[5rem] left-[8rem] sm:top-[11.5rem] sm:left-[0rem] w-[9rem] h-[3rem] flex items-center px-[1rem] justify-between text-tradewind text-mid font-bold gap-2 bg-bg-white border-[.3rem] border-solid sm:border-white rounded-xl shadow-lg cursor-pointer">
                               <button
                                 onClick={() => {
                                   dispatch(decrement(item._id));
@@ -325,30 +342,29 @@ export const RestaurantHeader = () => {
                               </button>
                             </div>
                           )}
-
-                          {/* Sticky 'View Cart' Button */}
-                          {cartItems.length > 0 && (
-                            <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 z-50">
-                              <button
-                                onClick={() => {
-                                  // Ensure all items have valid properties
-                                  const validItems = cartItems.every(
-                                    (item) => item._id && item.name && item.price
-                                  );
-                                  if (validItems) {
-                                    navigate('/user/checkout');
-                                  } else {
-                                    console.error('Cart contains invalid items');
-                                  }
-                                }}
-                                className="bg-tradewind text-white px-[8rem] py-[1.3rem] rounded-t-2xl shadow-lg flex items-center gap-2 cursor-pointer cartButton"
-                              >
-                                <b className="text-xl">View Cart ({cartItems.reduce((a, b) => a + b.quantity, 0)})</b>
-
-                              </button>
-                            </div>
-                          )}
                         </div>
+                        {/* Sticky 'View Cart' Button */}
+                        {cartItems.length > 0 && (
+                          <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 z-50">
+                            <button
+                              onClick={() => {
+                                // Ensure all items have valid properties
+                                const validItems = cartItems.every(
+                                  (item) => item._id && item.name && item.price
+                                );
+                                if (validItems) {
+                                  navigate('/user/checkout');
+                                } else {
+                                  console.error('Cart contains invalid items');
+                                }
+                              }}
+                              className="bg-tradewind text-white px-[8rem] py-[1.3rem] rounded-t-2xl shadow-lg flex items-center gap-2 cursor-pointer cartButton"
+                            >
+                              <b className="text-xl">View Cart ({cartItems.reduce((a, b) => a + b.quantity, 0)})</b>
+
+                            </button>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
