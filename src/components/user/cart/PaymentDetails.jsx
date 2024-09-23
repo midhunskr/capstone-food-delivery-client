@@ -1,46 +1,51 @@
 import PropTypes from "prop-types"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { addToCart, decrement, increment } from "../../../redux/features/cartSlice"
 import { axiosInstance } from "../../../config/axioInstance"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
+
 
 export const PaymentDetails = () => {
 
     //Import cart item data from Redux
     const [quantityItems, setQuantityItems] = useState({})
+    const { id } = useParams()
+    const [restaurant, setRestaurant] = useState({})
     const cartItems = useSelector((state) => state.cart.cartItems)
+    console.log(cartItems);
+
     // const [orderData, setOrderData] = useState(null)
     const [isCartEmpty, setIsCartEmpty] = useState(false);
     const navigate = useNavigate()
     const dispatch = useDispatch()
 
-    //Add to cart
-    // const handleAddToCart = (item) => {
+    //Fetch backend data
+    const fetchRestaurant = async () => {
+        try {
+            const response = await axiosInstance({
+                url: `/restaurant/${id}`,  // Ensure this URL is correct
+                method: 'GET',
+                withCredentials: true
+            });
+            // Check if the response contains the expected data
+            if (response?.data?.restaurant) {
+                setRestaurant(response.data.restaurant);
+            } else {
+                console.log("No restaurant data found"); // Log if restaurant data is missing
+                setRestaurant(null); // Fallback if restaurant not found
+            }
+        } catch (error) {
+            console.error("Error fetching restaurant data:", error); // Log any errors
+            toast.error('Error fetching restaurant data');
+        }
+    };
 
-    //     setQuantityItems((prevState) => ({
-    //         ...prevState,
-    //         [item._id]: { ...item, quantity: 0 },
-    //     }));
-
-    //     dispatch(addToCart(item))
-
-    // };
-
-    // //Handle duplicate item names
-    // const cartItems = cartItems.reduce((acc, item) => {
-    //     const existingItem = acc.find(i => i.name === item.name);
-
-    //     if (existingItem) {
-    //         // If an item with the same name exists, increment its quantity
-    //         existingItem.quantity += 1;
-    //     } else {
-    //         // Otherwise, add the item to the accumulator with a quantity of 1
-    //         acc.push({ ...item, quantity: 1 });
-    //     }
-
-    //     return acc;
-    // }, []);
+    useEffect(() => {
+        if (id) {
+            fetchRestaurant(); // Fetch restaurant when component mounts
+        }
+    }, [id]);
 
     console.log(cartItems);
 
@@ -137,12 +142,10 @@ export const PaymentDetails = () => {
         } catch (error) {
             console.log("Error creating Razorpay order:", error);
         }
-
     };
 
-
     return (
-        <div className="w-[30rem]">
+        <div className="w-[18rem] sm:w-full">
             <div className="py-[2rem] px-[2rem] h-auto flex flex-col gap-[2rem] border-2 border-solid border-selection-tint rounded-2xl">
                 <div className="flex gap-3">
                     <div className="w-[6rem] h-[6rem] border-4 border-solid border-white rounded-xl shadow-md" style={{
@@ -150,18 +153,18 @@ export const PaymentDetails = () => {
                         backgroundPosition: 'left center',
                     }} />
                     <div className="flex flex-col gap-3">
-                        <b className="restaurantName text-xl text-dark">{cartItems[0].restaurantName}</b>
-                        <b className="restaurantName text-mid text-label-tint font-normal">{cartItems[0].restaurantLocation}</b>
+                        <b className="restaurantName text-xl text-dark">{restaurant.name}</b>
+                        <b className="restaurantName text-mid text-label-tint font-normal">{restaurant.location}</b>
                     </div>
                 </div>
                 <div>
-                    <div className="pb-[1rem]">
+                    {/* <div className="pb-[1rem]">
                         <div className="w-full border-[.08rem] border-solid border-selection-tint" />
-                    </div>
-                    <div className="itemScroll overflow-y-auto flex flex-col justify-center h-[11rem]">
+                    </div> */}
+                    <div className="itemScroll overflow-y-auto h-[10rem] border-[.1rem] border-solid border-selection-tint rounded-xl">
                         {cartItems.map(item => (
-                            <div key={item._id} className="itemImageSection flex justify-between items-center py-[1rem]">
-                                <div className="flex gap-3 w-[8.7rem]">
+                            <div key={item._id} className="itemImageSection flex flex-col gap-3 sm:flex sm:flex-row sm:justify-between sm:items-center py-[1rem] px-[1rem] sm:px-[2rem] ">
+                                <div className="flex gap-3 sm:w-[8.7rem]">
                                     {item.veg ? (
                                         <img
                                             src="/veg.svg"
@@ -177,63 +180,51 @@ export const PaymentDetails = () => {
                                     )}
                                     <b className="text-mid text-dark font-normal">{item.name}</b>
                                 </div>
-                                <div className="w-[7rem] h-[2rem] flex items-center justify-between px-[1rem] text-tradewind text-mid font-bold gap-3 bg-bg-white border-[.3rem] border-solid border-white rounded-lg shadow-lmd">
-                                    <button
-                                        onClick={() => {
-                                            dispatch(decrement(item._id));
+                                <div className="flex justify-between gap-3 items-center">
+                                    <div className="w-[7rem] h-[2rem] flex items-center justify-between px-[1rem] text-tradewind text-mid font-bold gap-3 bg-bg-white border-[.3rem] border-solid border-white rounded-lg shadow-lmd">
+                                        <button
+                                            onClick={() => {
+                                                dispatch(decrement(item._id));
 
-                                            // Check if the item's quantity is now 0
-                                            const updatedItem = cartItems.find(cartItem => cartItem._id === item._id);
-                                            if (updatedItem && updatedItem.quantity === 0) {
-                                                setIsCartEmpty(true);
-                                            }
-                                        }}
-                                        className="bg-transparent text-xl font-bold flex justify-center rounded-md text-tradewind cursor-pointer">
-                                        -
-                                    </button>
+                                                // Check if the item's quantity is now 0
+                                                const updatedItem = cartItems.find(cartItem => cartItem._id === item._id);
+                                                if (updatedItem && updatedItem.quantity === 0) {
+                                                    setIsCartEmpty(true);
+                                                }
+                                            }}
+                                            className="bg-transparent text-xl font-bold flex justify-center rounded-md text-tradewind cursor-pointer">
+                                            -
+                                        </button>
 
-                                    {/* <span className="font-bold">
-                                        {cartItems.find(cartItem => cartItem._id === item._id)?.quantity || 1}
-                                    </span> */}
+                                        <span className="font-bold">
+                                            {(() => {
+                                                const cartItem = cartItems.find(cartItem => cartItem._id === item._id);
 
-                                    <span className="font-bold">
-                                        {(() => {
-                                            const cartItem = cartItems.find(cartItem => cartItem._id === item._id);
+                                                // Debugging output
+                                                console.log('cartItem:', cartItem);
 
-                                            // Debugging output
-                                            console.log('cartItem:', cartItem);
+                                                if (!cartItem) {
+                                                    return 'Your cart is empty';
+                                                }
 
-                                            if (!cartItem) {
-                                                return 'Your cart is empty';
-                                            }
+                                                if (cartItem.quantity === 0) {
+                                                    return 'Your cart is empty';
+                                                }
 
-                                            if (cartItem.quantity === 0) {
-                                                return 'Your cart is empty';
-                                            }
+                                                return cartItem.quantity;
+                                            })()}
+                                        </span>
 
-                                            return cartItem.quantity;
-                                        })()}
-                                    </span>
-
-                                    <button
-                                        onClick={() => {
-                                            // handleAddToCart(item); // Ensure this function is called
-                                            dispatch(increment(item._id));
-
-                                            // setQuantityItems((prevState) => {
-                                            //     // Ensure prevState is always an array
-                                            //     const validState = Array.isArray(prevState) ? prevState : [];
-
-                                            //     return validState.map(i =>
-                                            //         i._id === item._id ? { ...i, quantity: (i.quantity || 0) + 1 } : i
-                                            //     );
-                                            // });
-                                        }}
-                                        className="bg-transparent text-xl font-bold flex justify-center rounded-md text-tradewind cursor-pointer">
-                                        +
-                                    </button>
+                                        <button
+                                            onClick={() => {
+                                                dispatch(increment(item._id));
+                                            }}
+                                            className="bg-transparent text-xl font-bold flex justify-center rounded-md text-tradewind cursor-pointer">
+                                            +
+                                        </button>
+                                    </div>
+                                    <b className="font-normal text-mid">₹{item.price}</b>
                                 </div>
-                                <b className="font-normal text-mid">₹{item.price}</b>
                             </div>
                         ))}
                     </div>

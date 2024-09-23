@@ -56,7 +56,7 @@ export const CuisineListing = () => {
           <h3 className="text-dark font-bold text-[1.2rem] sm:text-[1.4rem]">
             Top Cuisines near by
           </h3>
-          <div className="leftAndRightNavigationButtons flex flex-row gap-2 sm:hidden">
+          <div className="leftAndRightNavigationButtons flex flex-row gap-2">
             <button onClick={() => handleScroll(-300)} className="cursor-pointer buttonLeft top-[0rem] left-[0rem] w-[1.625rem] h-[1.625rem] rounded-xl" style={{ backgroundColor: buttonColor.left }}>
               <img src="/arrow-left.svg" alt="" />
             </button>

@@ -23,6 +23,8 @@ export const RestaurantHeader = () => {
   const [restaurant, setRestaurant] = useState({}) //Setting State for Restaurant Fetcher
   const [quantityItems, setQuantityItems] = useState({});
   const cartItems = useSelector((state) => state.cart.cartItems) //Counter Redux
+  console.log(cartItems);
+  
 
 
   const dispatch = useDispatch()
@@ -185,14 +187,14 @@ export const RestaurantHeader = () => {
           <div className="w-[7rem] sm:w-[31rem] h-[.1rem] bg-selection-tint" />
         </div>
 
-        <div className="w-[70.5rem] flex flex-col px-[0rem] pb-[0rem] box-border max-w-full text-left text-[1.5rem] font-montserrat">
-          <div className="h-full pt-[0rem] px-[0rem] pb-[0rem] box-border gap-[2.012rem] max-w-full">
+        <div className="w-[70.5rem] flex flex-col px-[0rem] pb-[0rem] box-border max-w-full text-left text-[1.5rem]">
+          <div className="h-full pt-[0rem] px-[0rem] pb-[0rem] box-border gap-[2.012rem] max-w-full ">
             <h3 className="text-dark font-bold text-[1.2rem] sm:text-[1.4rem]">
               Top Picks
             </h3>
           </div>
 
-          <div className="flex flex-col gap-6 sm:flex sm:flex-row sm:justify-between py-[1rem]">
+          <div className="flex flex-col gap-6 sm:flex sm:flex-row sm:justify-between py-[1rem] border-b-[.1rem] border-solid border-selection-tint pb-[2rem]">
             {restaurant.menuItems && restaurant.menuItems.length > 0 ? (
               // Shuffle the menu items array and then slice to get up to 3 items
               [...restaurant.menuItems]
@@ -315,7 +317,7 @@ export const RestaurantHeader = () => {
                             </button>
                             
                           ) : (
-                            <div className="absolute top-[5rem] left-[8rem] sm:top-[11.5rem] sm:left-[0rem] w-[9rem] h-[3rem] flex items-center px-[1rem] justify-between text-tradewind text-mid font-bold gap-2 bg-bg-white border-[.3rem] border-solid sm:border-white rounded-xl shadow-lg cursor-pointer">
+                            <div className="absolute top-[5rem] left-[8rem] sm:top-[11.5rem] sm:left-[2rem] w-[9rem] h-[3rem] flex items-center px-[1rem] justify-between text-tradewind text-mid font-bold gap-2 bg-bg-white border-[.3rem] border-solid sm:border-white rounded-xl shadow-lg cursor-pointer">
                               <button
                                 onClick={() => {
                                   dispatch(decrement(item._id));
@@ -345,7 +347,7 @@ export const RestaurantHeader = () => {
                         </div>
                         {/* Sticky 'View Cart' Button */}
                         {cartItems.length > 0 && (
-                          <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 z-50">
+                          <div className="fixed bottom-0 left-[3.8rem] sm:left-1/2 sm:transform sm:-translate-x-1/2 z-50">
                             <button
                               onClick={() => {
                                 // Ensure all items have valid properties
@@ -353,14 +355,14 @@ export const RestaurantHeader = () => {
                                   (item) => item._id && item.name && item.price
                                 );
                                 if (validItems) {
-                                  navigate('/user/checkout');
+                                  navigate(`/user/restaurant/${id}/checkout`);
                                 } else {
                                   console.error('Cart contains invalid items');
                                 }
                               }}
-                              className="bg-tradewind text-white px-[8rem] py-[1.3rem] rounded-t-2xl shadow-lg flex items-center gap-2 cursor-pointer cartButton"
+                              className="bg-tradewind text-white w-[16rem] h-[4rem] sm:w-full sm:h-full sm:px-[8rem] sm:py-[1.3rem] rounded-t-3xl shadow-2xl sm:flex sm:items-center sm:gap-2 cursor-pointer cartButton border-l-[.5rem] border-r-[.5rem] border-t-[.5rem] border-solid border-white"
                             >
-                              <b className="text-xl">View Cart ({cartItems.reduce((a, b) => a + b.quantity, 0)})</b>
+                              <b className="text-lg sm:text-xl">View Cart ({cartItems.reduce((a, b) => a + b.quantity, 0)})</b>
 
                             </button>
                           </div>
