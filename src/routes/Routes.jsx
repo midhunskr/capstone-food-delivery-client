@@ -16,11 +16,12 @@ import { ManageRestaurant } from "../pages/admin/ManageRestaurant";
 import { AdminPreLoginLayout } from "../layouts/AdminPreLoginLayout";
 import { AdminLoginPage } from "../pages/admin/AdminLoginPage";
 import { AdminPostLoginLayout } from "../layouts/AdminPostLoginLayout";
+import { AdminAuth } from "./protectedRoutes/AdminAuth";
 
 export const router = createBrowserRouter([
   {
-    path: "/",
-    element: <RootLayout />,
+    path: "",
+    element: <UserLayout />,
     children: [
       {
         path: '/',
@@ -29,95 +30,91 @@ export const router = createBrowserRouter([
       {
         path: 'help',
         element: <HelpPage />
-      }
-    ]
+      },
+      {
+        path: "user",
+        element: <UserAuth/>,
+        children: [
+          {
+            path: "",
+            element: <HomePage />
+          },
+          {
+            path: "restaurants",
+            element: <AllRestaurants />
+          },
+          {
+            path: 'restaurant/:id',
+            element: <RestaurantPage />
+          },
+          {
+            path: "profile",
+            element: <ProfilePage />
+          },
+          {
+            path: "restaurant/:id/checkout",
+            element: <CheckoutPage />
+          },
+          {
+            path: "checkout/success",
+            element: <h1>Payment Success</h1>
+          },
+          {
+            path: "checkout/cancel",
+            element: <h1>Payment Cancelled</h1>
+          },
+          {
+            path: "test",
+            element: <ReduxTest />
+          },
+        ],
+      },
+    ],
   },
-  {
-    path: "user",
-    element: (
-      <UserAuth>
-        <UserLayout />
-      </UserAuth>
-    ),
-    children: [
-      {
-        path: "",
-        element: <HomePage />
-      },
-      {
-        path: "restaurants",
-        element: <AllRestaurants />
-      },
-      {
-        path: 'restaurant/:id',
-        element: <RestaurantPage />
-      },
-      {
-        path: "pizzahut",
-        element: <PizzaHut />
-      },
-      {
-        path: "profile",
-        element: <ProfilePage />
-      },
-      {
-        path: "restaurant/:id/checkout",
-        element: <CheckoutPage />
-      },
-      {
-        path: "checkout/success",
-        element: <h1>Payment Success</h1>
-      },
-      {
-        path: "checkout/cancel",
-        element: <h1>Payment Cancelled</h1>
-      },
-      {
-        path: "test",
-        element: <ReduxTest />
-      }
-    ]
-  },
-  {
-    path: "admin/login",
-    element: (
-        <AdminPreLoginLayout />
-    ),
-    children: [
-      {
-        path: "",
-        element: <AdminLoginPage />
-      },
-    ]
-  },
+
   {
     path: "admin",
     element: (
-      <UserAuth>
-        <AdminPostLoginLayout />
-      </UserAuth>
+      <AdminPostLoginLayout />
     ),
     children: [
       {
+        path: "login",
+        element: <AdminLoginPage />
+      },
+      {
         path: "",
-        element: <AdminProfile />
-      },
-      {
-        path: "restaurants",
-        element: <AllRestaurants />
-      },
-      {
-        path: 'restaurant/:id',
-        element: <RestaurantPage />
-      },
-      {
-        path: "profile",
-        element: <AdminProfile />
-      },
-      {
-        path: "create-restaurant",
-        element: <ManageRestaurant />
+        element: <AdminAuth/>,
+        children: [
+          {
+            path: "profile",
+            element: <AdminProfile />
+          },
+          {
+            path: "restaurants",
+            element: <AllRestaurants />
+          },
+          {
+            path: 'restaurant/:id',
+            element: <RestaurantPage />
+          },
+          {
+            path: "profile",
+            element: <AdminProfile />
+          },
+          {
+            path: "create-restaurant",
+            element: <ManageRestaurant />
+          }
+        ]
       }
     ]
-  }
+  },
+  // {
+  //   path: "admin",
+  //   element: <AdminPostLoginLayout />,
+  //   children: [
+      
+  //   ]
+  // }
 ])

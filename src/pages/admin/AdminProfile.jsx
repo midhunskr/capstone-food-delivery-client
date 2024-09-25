@@ -4,8 +4,9 @@ import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { createRestaurant } from "../../services/restaurantApi";
-import { adminLogin, adminLogout, userLogout } from "../../services/userApi";
+import { adminLogout } from "../../services/userApi";
 import { getAllRestaurants } from "../../services/restaurantApi";
+import { clearAdmin } from "../../redux/features/adminSlice";
 
 export const AdminProfile = () => {
   const [activeIndex, setActiveIndex] = useState(0)
@@ -97,6 +98,8 @@ export const AdminProfile = () => {
   const handleLogout = async () => {
     const response = await adminLogout();
     if (response?.success) {
+      toast.success('Logged out successfully!')
+      dispatch(clearAdmin())
       navigate('/admin/login');
     }
   };

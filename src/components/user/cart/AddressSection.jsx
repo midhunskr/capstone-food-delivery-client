@@ -4,8 +4,8 @@ export const AddressSection = () => {
     return (
         <>
             <div className="w-[18rem] sm:w-full">
-                <div className="py-[1rem] border-2 border-solid border-selection-tint rounded-2xl">
-                    <div className="px-[2rem] py-[2rem] flex flex-col">
+                <div className="sm:py-[1rem] border-2 border-solid border-selection-tint rounded-2xl">
+                    <div className="sm:px-[2rem] px-[1rem] py-[2rem] flex flex-col">
                         <div className="flex gap-3 border-b-2 border-solid border-selection-tint pb-[2rem]">
                             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" stroke="currentColor" className="text-dark">
                                 <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" fill="none" strokeWidth="1" />

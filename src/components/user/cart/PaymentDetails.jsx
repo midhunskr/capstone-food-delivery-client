@@ -1,17 +1,17 @@
 import PropTypes from "prop-types"
 import { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
-import { addToCart, decrement, increment } from "../../../redux/features/cartSlice"
+import { clearCart, decrement, increment } from "../../../redux/features/cartSlice"
 import { axiosInstance } from "../../../config/axioInstance"
 import { useNavigate, useParams } from "react-router-dom"
 
 
 export const PaymentDetails = () => {
 
-    //Import cart item data from Redux
-    const [quantityItems, setQuantityItems] = useState({})
+
     const { id } = useParams()
     const [restaurant, setRestaurant] = useState({})
+    //Import cart item data from Redux
     const cartItems = useSelector((state) => state.cart.cartItems)
     console.log(cartItems);
 
@@ -73,6 +73,9 @@ export const PaymentDetails = () => {
         });
     };
 
+    console.log(restaurant);
+
+
     const handlePayment = async () => {
         const res = await loadRazorpayScript();
         if (!res) {
@@ -81,7 +84,6 @@ export const PaymentDetails = () => {
         }
         try {
             const razorpayKeyId = import.meta.env.VITE_RAZORPAY_KEY_ID;
-            console.log("keyId", razorpayKeyId);
 
             // Prepare the order data to send to the backend
             const orderData = {
@@ -90,6 +92,7 @@ export const PaymentDetails = () => {
                     images: [item.image],
                     price: Number(item.price)
                 })),
+                restaurant: id,
                 totalPrice,
                 deliveryFee,
                 taxRate,
@@ -123,8 +126,9 @@ export const PaymentDetails = () => {
                 order_id: orderId, // The order ID from the response
                 handler: function (response) {
                     alert(`Payment successful! Payment ID: ${response.razorpay_payment_id}`);
+                    dispatch(clearCart())
                     // Handle post-payment tasks, like updating the database
-                    navigate('/user'); // Redirect to success page
+                    navigate('/user/profile'); // Redirect to orders page
                 },
                 prefill: {
                     name: 'John Doe',
@@ -146,7 +150,7 @@ export const PaymentDetails = () => {
 
     return (
         <div className="w-[18rem] sm:w-full">
-            <div className="py-[2rem] px-[2rem] h-auto flex flex-col gap-[2rem] border-2 border-solid border-selection-tint rounded-2xl">
+            <div className="px-[1rem] py-[1rem] sm:py-[2rem] sm:px-[4rem] h-auto flex flex-col gap-[2rem] border-2 border-solid border-selection-tint rounded-2xl">
                 <div className="flex gap-3">
                     <div className="w-[6rem] h-[6rem] border-4 border-solid border-white rounded-xl shadow-md" style={{
                         backgroundImage: `url(${cartItems[0]?.image})`, backgroundSize: 'cover',
@@ -161,9 +165,9 @@ export const PaymentDetails = () => {
                     {/* <div className="pb-[1rem]">
                         <div className="w-full border-[.08rem] border-solid border-selection-tint" />
                     </div> */}
-                    <div className="itemScroll overflow-y-auto h-[10rem] border-[.1rem] border-solid border-selection-tint rounded-xl">
+                    <div className="itemScroll overflow-y-auto h-[10rem]">
                         {cartItems.map(item => (
-                            <div key={item._id} className="itemImageSection flex flex-col gap-3 sm:flex sm:flex-row sm:justify-between sm:items-center py-[1rem] px-[1rem] sm:px-[2rem] ">
+                            <div key={item._id} className="itemImageSection flex flex-col gap-3 sm:flex sm:flex-row sm:justify-between sm:items-center py-[1rem] ">
                                 <div className="flex gap-3 sm:w-[8.7rem]">
                                     {item.veg ? (
                                         <img

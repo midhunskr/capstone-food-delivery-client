@@ -29,7 +29,7 @@ export const AdminLoginPage = () => {
 
       if (response.success && response.role === 'admin') {
         toast.success('Welcome back!');
-        navigate('/admin');
+        navigate('/admin/profile');
       } else {
         toast.error('Login failed. Please check your credentials.');
       }
@@ -57,12 +57,12 @@ export const AdminLoginPage = () => {
   }
 
   return (
-    <div className="self-stretch flex flex-col bg-bg-white items-center justify-center py-[0rem] px-[1.25rem] pb-[2rem] box-border max-w-full text-left text-[1.5rem] text-dark">
+    <div className="px-[1rem] md:px-[2rem] lg:px-[10rem] xl:px-[25rem] overflow-hidden bg-bg-white text-dark pb-[2rem]">
       <div className="h-full w-[70.5rem] flex flex-col items-start justify-start pt-[0rem] px-[0rem] pb-[0rem] box-border gap-[2.012rem] max-w-full mq450:h-auto mq750:gap-[1rem] mq750:pb-[11.688rem] mq750:box-border">
         <b className="pt-[2rem]">Admin Login</b>
-        <div className="flex flex-col  pl-[0.5rem] pr-[0rem] box-border shrink-0 max-w-full gap-[1.25rem] mq450:flex-wrap">
-          <div className="Form login-form border-2 border-solid border-selection-tint py-[1rem] px-[2rem] rounded-2xl">
-            {/* Login Form */}
+        <div className="sm:flex sm:flex-row flex flex-col pl-[0.5rem] pr-[0rem] box-border shrink-0 max-w-full gap-[1.25rem]">
+          <div className="Form  border-2 border-solid border-selection-tint py-[1rem] px-[2rem] rounded-2xl">
+           
             <form action="#" onSubmit={handleLoginSubmit(onSubmitLogin)}>
               <div className="input-box">
                 <label htmlFor="#">Email</label>
@@ -98,8 +98,8 @@ export const AdminLoginPage = () => {
             </form>
           </div>
 
-          <div className="Form Register-form border-2 border-solid border-selection-tint py-[1rem] px-[2rem] rounded-2xl">
-            {/* Signup Form */}
+          <div className="border-2 border-solid border-selection-tint py-[1rem] px-[2rem] rounded-2xl">
+            
             <form action="#" onSubmit={handleSignupSubmit(onSubmitRegister)}>
               <div className="input-box">
                 <i className="bx bxs-envelope"></i>

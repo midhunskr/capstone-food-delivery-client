@@ -1,16 +1,36 @@
 import PropTypes from "prop-types";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from 'react-redux'
 import { userLogout } from "../../services/userApi";
+import { Backdrop, Box, Fade, Modal } from "@mui/material";
+import { axiosInstance } from "../../config/axioInstance";
+
+const style = {
+  position: 'absolute',
+  top: '5%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: '90%', // Width will be responsive for smaller screens
+  maxWidth: 450, // Max width for larger screens
+  p: 4,
+}
 
 export const UserHeader = ({ className = "" }) => {
 
-  //Logout
+  const cartItems = useSelector((state) => state.cart.cartItems)
+  const navigate = useNavigate()
+  const [user, setUser] = useState(null)
+
+  const [searchQuery, setSearchQuery] = useState(""); // Search input state
+  const [searchResults, setSearchResults] = useState([]); // Search results state
+  const [isLoading, setIsLoading] = useState(false); // Loading state
+
   const handleLogout = async () => {
-    const response = await userLogout()
-    if (response?.success) {
-      navigate('/')
+    try {
+      await userLogout(setUser, navigate); // Call userLogout with setUser and navigate
+    } catch (error) {
+      console.error('Logout failed:', error);
     }
   }
 
@@ -23,8 +43,29 @@ export const UserHeader = ({ className = "" }) => {
     setIsProfileMenuOpen(false);
   };
 
-  const cartItems = useSelector((state) => state.cart.cartItems)
-  const navigate = useNavigate()
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
+  const handleSearchSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      // Make the API call to search endpoint
+      const response = await axiosInstance({
+        url: '/restaurant/searchrestaurants',
+        method: 'GET',
+        withCredentials: true,
+        params: { query: searchQuery }
+      });
+      setSearchResults(response.data); // Set the results into state
+    } catch (error) {
+      console.error("Error fetching search results:", error);
+    } finally {
+      setIsLoading(false); // Stop the loader after response
+    }
+  }
 
   return (
     <header
@@ -65,7 +106,7 @@ export const UserHeader = ({ className = "" }) => {
         </div>
       </div>
       <div className="overflow-hidden flex flex-row items-start justify-start pt-[0.006rem] px-[0rem] pb-[0.012rem] box-border gap-[1.681rem] max-w-full text-[1.2rem]">
-        <div className="flex flex-row items-start justify-start gap-[1.087rem]">
+        <div onClick={handleOpen} className="flex flex-row items-start justify-start gap-[1.087rem] cursor-pointer">
           <div className="flex flex-col items-start justify-start pt-[0.325rem] px-[0rem] pb-[0rem]">
             <img
               className="w-[0.9rem] h-[0.9rem] relative"
@@ -77,6 +118,53 @@ export const UserHeader = ({ className = "" }) => {
             Search
           </a>
         </div>
+
+        <Modal
+          aria-labelledby="transition-modal-title"
+          aria-describedby="transition-modal-description"
+          open={open}
+          onClose={handleClose}
+          closeAfterTransition
+          slots={{ backdrop: Backdrop }}
+          slotProps={{
+            backdrop: {
+              timeout: 500,
+            },
+          }}
+        >
+          <Fade in={open}>
+            <Box className="bg-bg-white rounded-xl" sx={style}>
+              <div className="search-modal">
+                <form onSubmit={handleSearchSubmit}>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search for items..."
+                  />
+                  <button type="submit">Search</button>
+                </form>
+
+                {isLoading && <p>Loading...</p>}
+
+                <div className="search-results">
+                  {searchResults.length > 0 ? (
+                    searchResults.map((item) => (
+                      <div key={item._id} className="search-item">
+                        <h3>{item.name}</h3>
+                        <p>{item.description}</p>
+                        <p>{item.price}</p>
+                      </div>
+                    ))
+                  ) : (
+                    <p>No results found.</p>
+                  )}
+                </div>
+              </div>
+            </Box>
+          </Fade>
+        </Modal>
+
         <div className="flex flex-row items-start justify-start py-[0rem] pl-[0rem] pr-[1rem] gap-[1.087rem]">
           <div className="flex flex-col items-start justify-start pt-[0.275rem] px-[0rem] pb-[0rem]">
             <img
@@ -141,9 +229,9 @@ export const UserHeader = ({ className = "" }) => {
                   className="block mb-2 hover:bg-tradewind hover:text-bg-white p-2 rounded no-underline text-dark"
                 >
                   Settings
-                </Link>           
+                </Link>
                 <Link>
-                  <div onClick={() => handleLogout(navigate('/'))} className="block mb-2 w-full hover:bg-jaffa hover:text-bg-white p-2 rounded no-underline text-dark">
+                  <div onClick={handleLogout} className="block mb-2 w-full hover:bg-jaffa hover:text-bg-white p-2 rounded no-underline text-dark">
                     Logout
                   </div>
                 </Link>

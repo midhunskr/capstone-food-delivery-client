@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { axiosInstance } from "../../../../config/axioInstance";
 import { useSelector, useDispatch } from 'react-redux'
-import { decrement, increment, addToCart } from "../../../../redux/features/cartSlice";
+import { decrement, increment, addToCart, clearCart } from "../../../../redux/features/cartSlice";
 
 export const RestaurantHeader = () => {
 
@@ -65,11 +65,11 @@ export const RestaurantHeader = () => {
   const fetchRestaurant = async () => {
     try {
       const response = await axiosInstance({
-        url: `/restaurant/${id}`,  // Ensure this URL is correct
+        url: `/restaurant/${id}`,
         method: 'GET',
         withCredentials: true
       });
-      // Check if the response contains the expected data
+
       if (response?.data?.restaurant) {
         setRestaurant(response.data.restaurant);
       } else {
@@ -77,7 +77,7 @@ export const RestaurantHeader = () => {
         setRestaurant(null); // Fallback if restaurant not found
       }
     } catch (error) {
-      console.error("Error fetching restaurant data:", error); // Log any errors
+      console.error("Error fetching restaurant data:", error);
       toast.error('Error fetching restaurant data');
     }
   };
@@ -297,7 +297,7 @@ export const RestaurantHeader = () => {
                         </div>
 
                         {/* Right Background Image Section with Button */}
-                        <div className="flex flex-col items-center justify-end relative h-[10rem] sm:w-[14rem] sm:h-[14rem] rounded-3xl overflow-visible shadow-md z-1 "
+                        <div className="flex flex-col items-end justify-end relative h-[10rem] sm:w-[14rem] sm:h-[14rem] rounded-3xl overflow-visible shadow-md z-1 "
                           style={{
                             border: "10px solid white",
                             backgroundImage: `url(${item.image})`,
@@ -310,14 +310,14 @@ export const RestaurantHeader = () => {
                           {!cartItems.find((i) => i._id === item._id) ? (
                             <button
                               onClick={() => handleAddToCart(item)}
-                              className="addToCartButton absolute top-[5rem] left-[14.5rem] w-[3rem] h-[3rem] flex items-center justify-center sm:left-[2rem] sm:top-[11.5rem] sm:w-[9rem] sm:h-[3rem] text-mid font-bold bg-tradewind text-bg-white sm:bg-bg-white sm:text-tradewind border-[.3rem] border-solid border-white px-3 py-1 rounded-full sm:rounded-xl shadow-md z-2 cursor-pointer"
+                              className="addToCartButton absolute top-[5rem] right-3 w-[3rem] h-[3rem] flex items-center justify-center sm:left-[2rem] sm:top-[11.5rem] sm:w-[9rem] sm:h-[3rem] text-mid font-bold bg-tradewind text-bg-white sm:bg-bg-white sm:text-tradewind border-[.3rem] border-solid border-white px-3 py-1 rounded-full sm:rounded-xl shadow-md z-2 cursor-pointer"
                             > 
                               <img className="w-[1.5rem] sm:hidden" src="/add-symbol.svg" alt="" />
                               <b className="hidden sm:inline-block">Add to Cart</b>
                             </button>
                             
                           ) : (
-                            <div className="absolute top-[5rem] left-[8rem] sm:top-[11.5rem] sm:left-[2rem] w-[9rem] h-[3rem] flex items-center px-[1rem] justify-between text-tradewind text-mid font-bold gap-2 bg-bg-white border-[.3rem] border-solid sm:border-white rounded-xl shadow-lg cursor-pointer">
+                            <div className="absolute top-[5rem] right-3 sm:top-[11.5rem] sm:left-[2rem] w-[9rem] h-[3rem] flex items-center px-[1rem] justify-between text-tradewind text-mid font-bold gap-2 bg-bg-white border-[.3rem] border-solid sm:border-white rounded-xl shadow-md cursor-pointer">
                               <button
                                 onClick={() => {
                                   dispatch(decrement(item._id));
@@ -355,12 +355,12 @@ export const RestaurantHeader = () => {
                                   (item) => item._id && item.name && item.price
                                 );
                                 if (validItems) {
-                                  navigate(`/user/restaurant/${id}/checkout`);
+                                  navigate(`/user/restaurant/${id}/checkout`);                                 
                                 } else {
                                   console.error('Cart contains invalid items');
                                 }
                               }}
-                              className="bg-tradewind text-white w-[16rem] h-[4rem] sm:w-full sm:h-full sm:px-[8rem] sm:py-[1.3rem] rounded-t-3xl shadow-2xl sm:flex sm:items-center sm:gap-2 cursor-pointer cartButton border-l-[.5rem] border-r-[.5rem] border-t-[.5rem] border-solid border-white"
+                              className="bg-tradewind text-white w-[16rem] h-[4rem] sm:w-full sm:h-full sm:px-[8rem] sm:py-[1.3rem] rounded-t-3xl shadow-2xl sm:flex sm:items-center sm:gap-2 cursor-pointer cartButton border-l-[.3rem] border-r-[.3rem] border-t-[.3rem] border-solid border-white"
                             >
                               <b className="text-lg sm:text-xl">View Cart ({cartItems.reduce((a, b) => a + b.quantity, 0)})</b>
 

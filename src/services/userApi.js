@@ -1,7 +1,6 @@
 import toast from "react-hot-toast"
 import { axiosInstance } from "../config/axioInstance"
 
-
 export const userLogin = async(data)=>{
     try {
         const response = await axiosInstance({
@@ -34,18 +33,22 @@ export const userSignUp = async(data)=>{
     }
 }
 
-export const userLogout = async () => {
+export const userLogout = async (setUser, navigate) => {
     try {
         const response = await axiosInstance({
             url: '/user/logout',
             method: 'POST',
             withCredentials: true
-        })
-        console.log(response);      
-        return response?.data
+        });
+        localStorage.removeItem('authToken'); // Remove the token from local storage
+        setUser(null); // Clear user state
+        navigate('/'); // Redirect to home
+        console.log(response);
+
+        return response?.data;
     } catch (error) {
-        toast.error('Logout Failed')
-        console.log(error);      
+        toast.error('Logout Failed');
+        console.log(error);
     }
 }
 

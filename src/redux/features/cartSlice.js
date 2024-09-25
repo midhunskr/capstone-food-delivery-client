@@ -63,10 +63,15 @@ const cartSlice = createSlice({
       } else {
         console.error(`Item with ID ${itemId} not found in the cart`);
       }
-    } 
+    },
+    clearCart: (state) => {
+      state.cartItems = [];
+      state.cartTotalQuanity = 0;
+      state.cartTotalAmount = 0;
+    },
   },
 })
 
-export const {addToCart, removeItemFromCart, increment, decrement } = cartSlice.actions
+export const {addToCart, increment, decrement, clearCart } = cartSlice.actions
 
 export default cartSlice.reducer
