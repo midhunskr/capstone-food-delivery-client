@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { AdminFooter } from '../components/admin/AdminFooter'
 import { AdminPostLoginHeader } from '../components/admin/AdminPostLoginHeader'
 import { useDispatch, useSelector } from 'react-redux'
 import { axiosInstance } from '../config/axioInstance'
 import { AdminPreLoginHeader } from '../components/admin/AdminPreLoginHeader'
 import { clearAdmin, saveAdmin } from '../redux/features/adminSlice'
+import { Footer } from '../components/publicUsers/Footer'
 
 
 export const AdminPostLoginLayout = () => {
 
   const { isAdminExist } = useSelector((state) => state.admin);
-  const navigate = useNavigate()
+  // const navigate = useNavigate()
   const dispatch = useDispatch();
   const location = useLocation();
   const [loading, setLoading] = useState(true)
@@ -43,11 +43,6 @@ export const AdminPostLoginLayout = () => {
     checkAdmin();
   }, [location.pathname]);
 
-  // Render loading message while waiting for authentication check
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
   console.log(isAdminExist);
   
 
@@ -56,7 +51,7 @@ export const AdminPostLoginLayout = () => {
 
       {isAdminExist ? <AdminPostLoginHeader /> : <AdminPreLoginHeader />}
       <Outlet />
-      <AdminFooter />
+      <Footer />
 
     </div>
   )

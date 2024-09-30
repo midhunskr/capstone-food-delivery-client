@@ -139,11 +139,12 @@ export const ProfilePage = () => {
 
     // Logout
     const handleLogout = async () => {
-        const response = await userLogout();
-        if (response?.success) {
-            navigate("/");
+        try {
+          await userLogout(setUser, navigate); // Call userLogout with setUser and navigate
+        } catch (error) {
+          console.error('Logout failed:', error);
         }
-    };
+      }
 
     // User profile
     const fetchUserProfile = async () => {
@@ -279,10 +280,10 @@ export const ProfilePage = () => {
                         )}
                     </>
                 );
-            case 1: // Payments
-                return <p>Payments content here...</p>;
-            case 2: // Addresses
+            case 1: // Addresses
                 return <p>Addresses content here...</p>;
+            case 2: // Logout
+                return <div onClick={handleLogout} className="border-[.2rem] border-solid border-selection-tint rounded-xl p-6"><button className="px-[1.5rem] py-[.5rem] rounded-lg border-[.2rem] border-solid border-tradewind bg-bg-white text-tradewind hover:bg-tradewind hover:text-bg-white text-xl cursor-pointer">Logout</button></div>
             default:
                 return null;
         }

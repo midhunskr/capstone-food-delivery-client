@@ -13,6 +13,8 @@ const cartSlice = createSlice({
     
     addToCart: (state, action) => {
       const itemId = action.payload._id;
+      console.log(itemId);
+      
       const existingItem = state.cartItems.find(item => item._id === itemId);
     
       if (!existingItem) {
@@ -43,7 +45,7 @@ const cartSlice = createSlice({
       
       // Find the item by its ID directly
       const existingItem = state.cartItems.find(item => item._id === itemId);
-      console.log(existingItem);
+      console.log("exisitngItem====================",existingItem);
       
       
       if (existingItem) {

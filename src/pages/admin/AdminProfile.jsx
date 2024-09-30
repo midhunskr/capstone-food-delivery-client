@@ -7,10 +7,12 @@ import { createRestaurant } from "../../services/restaurantApi";
 import { adminLogout } from "../../services/userApi";
 import { getAllRestaurants } from "../../services/restaurantApi";
 import { clearAdmin } from "../../redux/features/adminSlice";
+import { useDispatch } from "react-redux";
 
 export const AdminProfile = () => {
   const [activeIndex, setActiveIndex] = useState(0)
   const [restaurants, setRestaurants] = useState([])
+  const dispatch = useDispatch()
   const [isOpen, setIsOpen] = useState(false); // State to toggle dropdown
   const [selected, setSelected] = useState(null); // State to store selected item
   const [menuItems, setMenuItems] = useState([{ name: '', price: '', category: '', image: null }]);

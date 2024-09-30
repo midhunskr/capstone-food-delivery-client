@@ -24,8 +24,6 @@ export const RestaurantHeader = () => {
   const [quantityItems, setQuantityItems] = useState({});
   const cartItems = useSelector((state) => state.cart.cartItems) //Counter Redux
   console.log(cartItems);
-  
-
 
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -61,7 +59,7 @@ export const RestaurantHeader = () => {
     }
   }, [scrollPosition]);
 
-  //Fetch backend data
+  //Fetch restaurant and items
   const fetchRestaurant = async () => {
     try {
       const response = await axiosInstance({
@@ -69,11 +67,11 @@ export const RestaurantHeader = () => {
         method: 'GET',
         withCredentials: true
       });
-
+      
       if (response?.data?.restaurant) {
         setRestaurant(response.data.restaurant);
       } else {
-        console.log("No restaurant data found"); // Log if restaurant data is missing
+        console.log("No restaurant data found");
         setRestaurant(null); // Fallback if restaurant not found
       }
     } catch (error) {
@@ -88,6 +86,41 @@ export const RestaurantHeader = () => {
     }
   }, [id]);
 
+  // Function to handle updating the cart in the backend
+  const updateCart = async () => {
+    try {
+      const menuItems = cartItems.map(item => ({
+        menuItemId: item._id,
+        quantity: item.quantity,
+      }));
+
+      console.log(menuItems);
+
+      const restaurantId = `${id}` // Replace with actual restaurant ID
+      console.log(restaurantId);
+
+      const response = await axiosInstance({
+        url: '/cart/update',
+        method: 'POST',
+        withCredentials: true,
+        data: {  // Include data under the 'data' property
+          menuItems,
+          restaurantId,
+        },
+      })
+      console.log("response============", response);
+    } catch (error) {
+      console.error("Failed to update cart:", error);
+    }
+  };
+
+  // Effect to update the cart when cart items change
+  useEffect(() => {
+    if (cartItems.length > 0) {
+      updateCart();
+    }
+  }, [cartItems]); // Dependency array includes cartItems
+
   // Function to handle button click and show quantity selector
   const handleAddToCart = (item) => {
 
@@ -99,6 +132,67 @@ export const RestaurantHeader = () => {
     dispatch(addToCart(item))
 
   };
+
+  // const handleAddToCart = (item) => {
+  //   console.log('Cart Items:', cartItems);
+  //   console.log('Item being added:', item);
+  
+  //   // Ensure both IDs are compared as strings
+  //   const existingItem = cartItems.find(cartItem => cartItem.menuItem === item._id);
+  //   console.log('Existing Item:', existingItem);
+  
+  //   if (existingItem) {
+  //     // If the item already exists in the cart, just update the quantity state
+  //     setQuantityItems(prevState => ({
+  //       ...prevState,
+  //       [item._id]: existingItem.quantity, // Set quantity to match the cart
+  //     }));
+  //     dispatch(increment(item._id)); // Use Redux increment
+  //   } else {
+  //     // If the item doesn't exist, add it to the cart and set quantity to 1
+  //     dispatch(addToCart(item));
+  //     setQuantityItems(prevState => ({
+  //       ...prevState,
+  //       [item._id]: 1,
+  //     }));
+  //   }
+  // };
+  
+
+  //set items in redux from backend
+  useEffect(() => {
+    const fetchCart = async () => {
+      try {
+        const response = await axiosInstance({
+          url: '/cart',
+          method: 'GET',
+          withCredentials: true,
+        });
+
+        const fetchedCartItems = response.data.cart.cartItems; // Ensure this matches your backend response
+        console.log(fetchedCartItems);
+
+        // Clear existing cart items to avoid duplicates
+        dispatch(clearCart()); // Clear cart to reset before loading items
+
+        // Validate and filter fetched items
+        const validCartItems = fetchedCartItems.filter(item => item.menuItem && item.quantity);
+
+        // Log the items for debugging
+        console.log("Valid Cart Items:", validCartItems);
+
+        // Add valid items to Redux store
+        validCartItems.forEach(item => {
+          dispatch(addToCart(item));
+        });
+
+      } catch (error) {
+        console.error("Failed to fetch cart items:", error);
+      }
+    };
+
+    fetchCart();
+  }, [dispatch]);
 
   return (
     <>
@@ -145,11 +239,11 @@ export const RestaurantHeader = () => {
           </div>
         </div>
 
-        <div className="flex items-center justify-between pt-[2rem]">
-          <h3 className="text-dark font-bold text-[1.2rem] sm:text-[1.4rem]">
+        <div className="flex items-center justify-between pt-[2rem] ">
+          <h3 className="text-dark font-bold text-[1.2rem] sm:text-[1.4rem] ">
             Deals for you
           </h3>
-          <div className="leftAndRightNavigationButtons flex flex-row gap-2">
+          <div className="leftAndRightNavigationButtons flex flex-row gap-2 ">
             <button onClick={() => handleScroll(-320)} className="cursor-pointer buttonLeft top-[0rem] left-[0rem] w-[1.625rem] h-[1.625rem] rounded-xl" style={{ backgroundColor: buttonColor.left }}>
               <img src="/arrow-left.svg" alt="" />
             </button>
@@ -159,7 +253,7 @@ export const RestaurantHeader = () => {
           </div>
         </div>
 
-        <div className="scrollSection2 flex flex-col py-[1rem]">
+        <div className="scrollSection2 flex flex-col py-[1rem] ">
           <div
             ref={containerRef}
             className="scroll-container w-full"
@@ -168,10 +262,10 @@ export const RestaurantHeader = () => {
               scrollBehavior: "smooth",
             }}
           >
-            <div className="flex flex-row justify-start gap-[10rem] max-w-full text-[1.413rem] text-white">
+            <div className="flex flex-row justify-start gap-[10rem] max-w-full text-[1.413rem] text-white ">
               {SAMPLE_DATA.map((item, idx) => (
                 <div key={`${item.itemName}-${idx}`} className="w-[10rem] flex flex-col">
-                  <div className="w-[18rem] rounded-2xl h-[7rem] border-[.2rem] border-solid border-selection-tint" />
+                  <div className="w-[18rem] rounded-2xl h-[7rem] border-[.2rem] border-solid border-selection-tint " />
                 </div>
               ))}
             </div>
@@ -257,11 +351,10 @@ export const RestaurantHeader = () => {
                   <div className="collapse-content text-dark">
                     {filteredItems.map((item, index) => (
                       <div
-                      key={item._id}
-                      className={`flex flex-col sm:flex sm:flex-row sm:items-center justify-between pb-[2rem] sm:pb-[4rem] py-[2rem] ${
-                        index !== filteredItems.length - 1 ? 'border-b border-solid border-selection-tint' : ''
-                      }`}
-                    >
+                        key={item._id}
+                        className={`flex flex-col sm:flex sm:flex-row sm:items-center justify-between pb-[2rem] sm:pb-[4rem] py-[2rem] ${index !== filteredItems.length - 1 ? 'border-b border-solid border-selection-tint' : ''
+                          }`}
+                      >
                         {/* Left Content Section */}
                         <div className="flex flex-col items-start gap-2 sm:w-2/3">
                           <div className="flex gap-2 font-bold">
@@ -311,11 +404,11 @@ export const RestaurantHeader = () => {
                             <button
                               onClick={() => handleAddToCart(item)}
                               className="addToCartButton absolute top-[5rem] right-3 w-[3rem] h-[3rem] flex items-center justify-center sm:left-[2rem] sm:top-[11.5rem] sm:w-[9rem] sm:h-[3rem] text-mid font-bold bg-tradewind text-bg-white sm:bg-bg-white sm:text-tradewind border-[.3rem] border-solid border-white px-3 py-1 rounded-full sm:rounded-xl shadow-md z-2 cursor-pointer"
-                            > 
+                            >
                               <img className="w-[1.5rem] sm:hidden" src="/add-symbol.svg" alt="" />
                               <b className="hidden sm:inline-block">Add to Cart</b>
                             </button>
-                            
+
                           ) : (
                             <div className="absolute top-[5rem] right-3 sm:top-[11.5rem] sm:left-[2rem] w-[9rem] h-[3rem] flex items-center px-[1rem] justify-between text-tradewind text-mid font-bold gap-2 bg-bg-white border-[.3rem] border-solid sm:border-white rounded-xl shadow-md cursor-pointer">
                               <button
@@ -355,7 +448,7 @@ export const RestaurantHeader = () => {
                                   (item) => item._id && item.name && item.price
                                 );
                                 if (validItems) {
-                                  navigate(`/user/restaurant/${id}/checkout`);                                 
+                                  navigate(`/user/restaurant/${id}/checkout`);
                                 } else {
                                   console.error('Cart contains invalid items');
                                 }

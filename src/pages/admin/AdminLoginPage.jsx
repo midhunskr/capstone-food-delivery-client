@@ -3,8 +3,18 @@ import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { userLogin, userSignUp } from "../../services/userApi";
+import { AdminAuth } from "../../routes/protectedRoutes/AdminAuth";
+import { useSelector } from "react-redux";
 
 export const AdminLoginPage = () => {
+
+  const isAdminExist = useSelector((state) => state.admin.isAdminExist); // Accessing admin existence state
+
+  // Redirect if admin already exists
+  if (isAdminExist) {
+    navigate("/admin/profile");
+    return null; // Prevent rendering anything while navigating
+  }
 
   // Separate form instance for login
   const {
