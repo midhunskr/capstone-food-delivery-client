@@ -1,9 +1,11 @@
 import PropTypes from "prop-types"
-import { useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { axiosInstance } from "../../../../config/axioInstance";
+import { useEffect, useRef, useState } from "react"
+import { useNavigate, useParams } from "react-router-dom"
+import { axiosInstance } from "../../../../config/axioInstance"
 import { useSelector, useDispatch } from 'react-redux'
-import { decrement, increment, addToCart, clearCart } from "../../../../redux/features/cartSlice";
+import { decrement, increment, addToCart, clearCart } from "../../../../redux/features/cartSlice"
+import debounce from 'lodash.debounce'
+
 
 export const RestaurantHeader = () => {
 
@@ -21,10 +23,7 @@ export const RestaurantHeader = () => {
   const containerRef = useRef();
   const { id } = useParams() // Extract restaurant ID from URL
   const [restaurant, setRestaurant] = useState({}) //Setting State for Restaurant Fetcher
-  const [quantityItems, setQuantityItems] = useState({});
   const cartItems = useSelector((state) => state.cart.cartItems) //Counter Redux
-  console.log(cartItems);
-
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
@@ -59,7 +58,7 @@ export const RestaurantHeader = () => {
     }
   }, [scrollPosition]);
 
-  //Fetch restaurant and items
+  // Fetch restaurant and items
   const fetchRestaurant = async () => {
     try {
       const response = await axiosInstance({
@@ -67,7 +66,7 @@ export const RestaurantHeader = () => {
         method: 'GET',
         withCredentials: true
       });
-      
+
       if (response?.data?.restaurant) {
         setRestaurant(response.data.restaurant);
       } else {
@@ -86,80 +85,7 @@ export const RestaurantHeader = () => {
     }
   }, [id]);
 
-  // Function to handle updating the cart in the backend
-  const updateCart = async () => {
-    try {
-      const menuItems = cartItems.map(item => ({
-        menuItemId: item._id,
-        quantity: item.quantity,
-      }));
-
-      console.log(menuItems);
-
-      const restaurantId = `${id}` // Replace with actual restaurant ID
-      console.log(restaurantId);
-
-      const response = await axiosInstance({
-        url: '/cart/update',
-        method: 'POST',
-        withCredentials: true,
-        data: {  // Include data under the 'data' property
-          menuItems,
-          restaurantId,
-        },
-      })
-      console.log("response============", response);
-    } catch (error) {
-      console.error("Failed to update cart:", error);
-    }
-  };
-
-  // Effect to update the cart when cart items change
-  useEffect(() => {
-    if (cartItems.length > 0) {
-      updateCart();
-    }
-  }, [cartItems]); // Dependency array includes cartItems
-
-  // Function to handle button click and show quantity selector
-  const handleAddToCart = (item) => {
-
-    setQuantityItems((prevState) => ({
-      ...prevState,
-      [item._id]: { ...item, quantity: 1 },
-    }));
-
-    dispatch(addToCart(item))
-
-  };
-
-  // const handleAddToCart = (item) => {
-  //   console.log('Cart Items:', cartItems);
-  //   console.log('Item being added:', item);
-  
-  //   // Ensure both IDs are compared as strings
-  //   const existingItem = cartItems.find(cartItem => cartItem.menuItem === item._id);
-  //   console.log('Existing Item:', existingItem);
-  
-  //   if (existingItem) {
-  //     // If the item already exists in the cart, just update the quantity state
-  //     setQuantityItems(prevState => ({
-  //       ...prevState,
-  //       [item._id]: existingItem.quantity, // Set quantity to match the cart
-  //     }));
-  //     dispatch(increment(item._id)); // Use Redux increment
-  //   } else {
-  //     // If the item doesn't exist, add it to the cart and set quantity to 1
-  //     dispatch(addToCart(item));
-  //     setQuantityItems(prevState => ({
-  //       ...prevState,
-  //       [item._id]: 1,
-  //     }));
-  //   }
-  // };
-  
-
-  //set items in redux from backend
+  // Fetch cart
   useEffect(() => {
     const fetchCart = async () => {
       try {
@@ -169,30 +95,100 @@ export const RestaurantHeader = () => {
           withCredentials: true,
         });
 
-        const fetchedCartItems = response.data.cart.cartItems; // Ensure this matches your backend response
-        console.log(fetchedCartItems);
+        const fetchedCartItems = response.data.cart.cartItems;
+        console.log("Fetched cart items:", fetchedCartItems);
 
-        // Clear existing cart items to avoid duplicates
-        dispatch(clearCart()); // Clear cart to reset before loading items
+        // Ensure that either _id or menuItem exists and quantity is > 0
+        const validCartItems = fetchedCartItems.filter(item => (item._id || item.menuItem) && item.quantity > 0);
 
-        // Validate and filter fetched items
-        const validCartItems = fetchedCartItems.filter(item => item.menuItem && item.quantity);
-
-        // Log the items for debugging
-        console.log("Valid Cart Items:", validCartItems);
-
-        // Add valid items to Redux store
+        // Dispatch items to Redux with correct quantities from backend
         validCartItems.forEach(item => {
-          dispatch(addToCart(item));
+          dispatch(addToCart({ ...item, quantity: item.quantity })); // Ensure correct quantity is used
         });
-
       } catch (error) {
-        console.error("Failed to fetch cart items:", error);
+        console.error("Failed to fetch cart items:", error.response ? error.response.data : error.message);
       }
     };
 
-    fetchCart();
+    console.log("Fetching cart...");
+    fetchCart(); // Fetch the cart when component mounts
   }, [dispatch]);
+
+  useEffect(() => {
+    console.log("Redux cart state after fetch:", cartItems);
+  }, [cartItems]);
+
+  // Handle add to cart
+  const handleAddToCart = async (item) => {
+    console.log('Cart Items:', cartItems);
+    console.log('Item being added:', item);
+
+    // Find the existing item in the cart, either by _id or menuItem
+    const existingItem = cartItems.find(cartItem => cartItem._id === item._id || cartItem.menuItem === item._id);
+
+    if (existingItem) {
+      console.log('Existing Item:', existingItem);
+      // Instead of adding a new item, increment its quantity
+      dispatch(increment(existingItem._id || existingItem.menuItem)); // Use Redux to update the quantity
+    } else {
+      console.log('Item not found in cart.');
+      // Add the new item to the cart
+      dispatch(addToCart(item));
+    }
+
+    // Update the cart in the backend
+    // await updateCart()
+    // await fetchCart()
+  };
+
+  // Handle increment action
+  const handleIncrement = async (item) => {
+    console.log('Increment clicked for:', item._id || item.menuItem);
+    dispatch(increment(item._id || item.menuItem)); // Dispatch Redux action to increment
+    // await updateCart()
+    // await fetchCart()
+  };
+
+  const handleDecrement = async (item) => {
+    dispatch(decrement(item._id || item.menuItem)); // Dispatch Redux action to decrement
+    // await updateCart()
+    // await fetchCart()
+  };
+
+  // Update cart in backend
+  const updateCart = debounce(async () => {
+    try {
+      const menuItems = cartItems.map(item => ({
+        menuItemId: item.menuItem ? item.menuItem : item._id,
+        quantity: item.quantity,
+      }));
+      const restaurantId = `${id}`;
+
+      const response = await axiosInstance({
+        url: '/cart/update',
+        method: 'POST',
+        withCredentials: true,
+        data: { menuItems, restaurantId },
+      });
+
+      console.log("Cart updated:", response.data);
+
+      // If cart is cleared, update the local state (Redux and UI)
+      if (response.data.cart.cartItems.length === 0) {
+        dispatch(clearCart()); // Clear the cart in Redux
+      }
+
+    } catch (error) {
+      console.error("Failed to update cart:", error);
+    }
+  }, 500); // 500ms debounce time
+
+  // Effect to update the cart when cart items change
+  useEffect(() => {
+    if (cartItems.length > 0) {
+      updateCart()
+    }
+  }, [cartItems]); // Dependency array includes cartItems
 
   return (
     <>
@@ -398,22 +394,13 @@ export const RestaurantHeader = () => {
                             backgroundPosition: 'left center',
                             backgroundRepeat: "no-repeat"
                           }}>
-
+                          {console.log(cartItems)}
                           {/* Button or Quantity Section */}
-                          {!cartItems.find((i) => i._id === item._id) ? (
-                            <button
-                              onClick={() => handleAddToCart(item)}
-                              className="addToCartButton absolute top-[5rem] right-3 w-[3rem] h-[3rem] flex items-center justify-center sm:left-[2rem] sm:top-[11.5rem] sm:w-[9rem] sm:h-[3rem] text-mid font-bold bg-tradewind text-bg-white sm:bg-bg-white sm:text-tradewind border-[.3rem] border-solid border-white px-3 py-1 rounded-full sm:rounded-xl shadow-md z-2 cursor-pointer"
-                            >
-                              <img className="w-[1.5rem] sm:hidden" src="/add-symbol.svg" alt="" />
-                              <b className="hidden sm:inline-block">Add to Cart</b>
-                            </button>
-
-                          ) : (
+                          {cartItems.find((i) => (i.menuItem === item._id || i._id === item._id) && i.quantity > 0) ? (
                             <div className="absolute top-[5rem] right-3 sm:top-[11.5rem] sm:left-[2rem] w-[9rem] h-[3rem] flex items-center px-[1rem] justify-between text-tradewind text-mid font-bold gap-2 bg-bg-white border-[.3rem] border-solid sm:border-white rounded-xl shadow-md cursor-pointer">
                               <button
                                 onClick={() => {
-                                  dispatch(decrement(item._id));
+                                  handleDecrement(item);
                                 }}
                                 className="decrementButton bg-white px-2 py-1 rounded-md border-[.1rem] border-solid border-disabled-tint text-tradewind cursor-pointer"
                               >
@@ -421,25 +408,31 @@ export const RestaurantHeader = () => {
                               </button>
 
                               <span className="quantityValue font-bold">
-                                {cartItems.find(cartItem => cartItem._id === item._id)?.quantity || 1}
-                                {console.log(cartItems)
-                                }
+                                {cartItems.find(cartItem => cartItem.menuItem === item._id || cartItem._id === item._id)?.quantity || 0}
                               </span>
 
                               <button
-                                onClick={() => {
-                                  handleAddToCart(item); // Ensure this function is called
-                                  dispatch(increment(item._id));
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleIncrement(item);
                                 }}
                                 className="incrementButton bg-white px-2 py-1 rounded-md border-[.1rem] border-solid border-disabled-tint text-tradewind cursor-pointer"
                               >
                                 +
                               </button>
                             </div>
+                          ) : (
+                            <button
+                              onClick={() => handleAddToCart(item)}
+                              className="addToCartButton absolute top-[5rem] right-3 w-[3rem] h-[3rem] flex items-center justify-center sm:left-[2rem] sm:top-[11.5rem] sm:w-[9rem] sm:h-[3rem] text-mid font-bold bg-tradewind text-bg-white sm:bg-bg-white sm:text-tradewind border-[.3rem] border-solid border-white px-3 py-1 rounded-full sm:rounded-xl shadow-md z-2 cursor-pointer"
+                            >
+                              <img className="w-[1.5rem] sm:hidden" src="/add-symbol.svg" alt="" />
+                              <b className="hidden sm:inline-block">Add to Cart</b>
+                            </button>
                           )}
                         </div>
                         {/* Sticky 'View Cart' Button */}
-                        {cartItems.length > 0 && (
+                        {cartItems.reduce((a, b) => a + b.quantity, 0) > 0 && ( // Check if total quantity is greater than 0
                           <div className="fixed bottom-0 left-[3.8rem] sm:left-1/2 sm:transform sm:-translate-x-1/2 z-50">
                             <button
                               onClick={() => {
@@ -456,7 +449,6 @@ export const RestaurantHeader = () => {
                               className="bg-tradewind text-white w-[16rem] h-[4rem] sm:w-full sm:h-full sm:px-[8rem] sm:py-[1.3rem] rounded-t-3xl shadow-2xl sm:flex sm:items-center sm:gap-2 cursor-pointer cartButton border-l-[.3rem] border-r-[.3rem] border-t-[.3rem] border-solid border-white"
                             >
                               <b className="text-lg sm:text-xl">View Cart ({cartItems.reduce((a, b) => a + b.quantity, 0)})</b>
-
                             </button>
                           </div>
                         )}

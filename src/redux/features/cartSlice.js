@@ -1,79 +1,66 @@
-import {createSlice} from "@reduxjs/toolkit"
+import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   cartItems: [],
-  cartTotalQuanity: 0,
+  cartTotalQuantity: 0,
   cartTotalAmount: 0,
-}
+};
 
 const cartSlice = createSlice({
   name: "cart",
   initialState,
   reducers: {
-    
+
     addToCart: (state, action) => {
-      const itemId = action.payload._id;
-      console.log(itemId);
-      
-      const existingItem = state.cartItems.find(item => item._id === itemId);
+      const itemId = action.payload._id || action.payload.menuItem; // Check for _id or menuItem
+      const existingItem = state.cartItems.find(item => item._id === itemId || item.menuItem === itemId);
     
-      if (!existingItem) {
-        // Only add the item if it's not already in the cart
-        state.cartItems.push({ ...action.payload, quantity: 1 });
+      if (existingItem) {
+        // Increment quantity if item already exists
+        existingItem.quantity += 1;
+      } else {
+        // Add the item with a quantity of 1 if it's not already in the cart
+        state.cartItems.push({
+          ...action.payload,
+          _id: action.payload._id || action.payload.menuItem, // Ensure both _id and menuItem are handled
+          quantity: 1,
+        });
       }
     },
 
     increment: (state, action) => {
-      const itemId = action.payload;
-    
-      // Map through the cartItems and immutably update the item's quantity
-      state.cartItems = state.cartItems.map(item => {
-        if (item._id === itemId) {
-          return {
-            ...item,
-            quantity: item.quantity + 1, // Immutably update the quantity
-          };
-        }
-        return item; // Return the item as-is if it doesn't match the ID
-      });
-    
-      console.log("Updated cart items after increment:", JSON.stringify(state.cartItems, null, 2));
-    },
-    
-    decrement: (state, action) => {
-      const itemId = action.payload;
+      const itemId = action.payload; // Get the ID passed with the action
+      const item = state.cartItems.find(cartItem => cartItem._id === itemId || cartItem.menuItem === itemId);
       
-      // Find the item by its ID directly
-      const existingItem = state.cartItems.find(item => item._id === itemId);
-      console.log("exisitngItem====================",existingItem);
-      
-      
-      if (existingItem) {
-        console.log(`Decrementing item ${existingItem.name}, Current quantity: ${existingItem.quantity}`);
-    
-        if (existingItem.quantity > 1) {
-          // Directly modify the quantity for the found item
-          existingItem.quantity -= 1;
-        } else {
-          // If quantity is 1, remove the item from the cart
-          console.log(`Removing item ${existingItem.name} as quantity reaches zero`);
-          state.cartItems = state.cartItems.filter(item => item._id !== itemId);
-        }
-    
-        // Log the updated cart items
-        console.log("Updated cart items after decrement:", JSON.parse(JSON.stringify(state.cartItems)));
+      if (item) {
+        item.quantity += 1; // Increment quantity by 1
+        console.log("Item incremented:", item, "Current quantity:", item.quantity);
       } else {
-        console.error(`Item with ID ${itemId} not found in the cart`);
+        console.log("Item not found for increment");
       }
     },
+
+    decrement: (state, action) => {
+      const itemId = action.payload;
+      const existingItem = state.cartItems.find(cartItem => cartItem._id === itemId);
+    
+      if (existingItem) {
+        if (existingItem.quantity === 0) {
+          // Remove item if its quantity becomes 0
+          state.cartItems = state.cartItems.filter(cartItem => cartItem._id !== itemId);
+        } else {
+          existingItem.quantity -= 1; // Decrease quantity
+        }
+      }
+    },
+    
     clearCart: (state) => {
       state.cartItems = [];
-      state.cartTotalQuanity = 0;
+      state.cartTotalQuantity = 0;
       state.cartTotalAmount = 0;
     },
   },
-})
+});
 
-export const {addToCart, increment, decrement, clearCart } = cartSlice.actions
-
-export default cartSlice.reducer
+export const { addToCart, increment, decrement, clearCart } = cartSlice.actions;
+export default cartSlice.reducer;
