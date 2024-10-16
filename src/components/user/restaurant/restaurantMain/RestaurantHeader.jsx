@@ -137,8 +137,7 @@ export const RestaurantHeader = () => {
     }
 
     // Update the cart in the backend
-    // await updateCart()
-    // await fetchCart()
+    await updateCart()
   };
 
   // Handle increment action
@@ -146,13 +145,11 @@ export const RestaurantHeader = () => {
     console.log('Increment clicked for:', item._id || item.menuItem);
     dispatch(increment(item._id || item.menuItem)); // Dispatch Redux action to increment
     // await updateCart()
-    // await fetchCart()
   };
 
   const handleDecrement = async (item) => {
     dispatch(decrement(item._id || item.menuItem)); // Dispatch Redux action to decrement
     // await updateCart()
-    // await fetchCart()
   };
 
   // Update cart in backend

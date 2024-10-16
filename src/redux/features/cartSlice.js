@@ -16,17 +16,17 @@ const cartSlice = createSlice({
       const existingItem = state.cartItems.find(item => item._id === itemId || item.menuItem === itemId);
     
       if (existingItem) {
-        // Increment quantity if item already exists
-        existingItem.quantity += 1;
+        // If the item already exists, check if it's being added from the backend (with a predefined quantity)
+        existingItem.quantity = action.payload.quantity || existingItem.quantity + 1; // Use backend quantity if available, otherwise increment
       } else {
-        // Add the item with a quantity of 1 if it's not already in the cart
+        // Add the item with its quantity from the backend or set it to 1 if not provided
         state.cartItems.push({
           ...action.payload,
           _id: action.payload._id || action.payload.menuItem, // Ensure both _id and menuItem are handled
-          quantity: 1,
+          quantity: action.payload.quantity || 1, // Set the correct quantity from backend, or default to 1
         });
       }
-    },
+    },    
 
     increment: (state, action) => {
       const itemId = action.payload; // Get the ID passed with the action
@@ -42,17 +42,17 @@ const cartSlice = createSlice({
 
     decrement: (state, action) => {
       const itemId = action.payload;
-      const existingItem = state.cartItems.find(cartItem => cartItem._id === itemId);
+      const existingItem = state.cartItems.find(cartItem => cartItem._id === itemId || cartItem.menuItem === itemId);
     
       if (existingItem) {
         if (existingItem.quantity === 0) {
           // Remove item if its quantity becomes 0
-          state.cartItems = state.cartItems.filter(cartItem => cartItem._id !== itemId);
+          state.cartItems = state.cartItems.filter(cartItem => cartItem._id !== itemId && cartItem.menuItem !== itemId);
         } else {
           existingItem.quantity -= 1; // Decrease quantity
         }
       }
-    },
+    },   
     
     clearCart: (state) => {
       state.cartItems = [];
