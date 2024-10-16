@@ -11,11 +11,11 @@ export const RestaurantHeader = () => {
 
   //Data
   const SAMPLE_DATA = [
-    { image: "/biriyani-1@2x.png", discountPercentage: "10% OFF", upToAmount: "Up to ₹70", itemName: "Biriyani" },
-    { image: "/noodles-1@2x.png", discountPercentage: "15% OFF", upToAmount: "Up to ₹90", itemName: "Noodles" },
-    { image: "/burgers-1@2x.png", discountPercentage: "35% OFF", upToAmount: "Up to ₹120", itemName: "Burgers" },
-    { image: "/pizza-5@2x.png", discountPercentage: "10% OFF", upToAmount: "Up to ₹40", itemName: "Pizzas" },
-    { image: "/rolls-1@2x.png", discountPercentage: "10% OFF", upToAmount: "Up to ₹40", itemName: "Rolls" }
+    { image: "/offer10.svg", discountPercentage: "10% OFF", couponCode: "FLAT10", itemName: "Biriyani" },
+    { image: "/offer15.svg", discountPercentage: "15% OFF", couponCode: "FLAT15", itemName: "Noodles" },
+    { image: "/offer20.svg", discountPercentage: "20% OFF", couponCode: "FLAT20", itemName: "Burgers" },
+    { image: "/offer25.svg", discountPercentage: "25% OFF", couponCode: "FLAT25", itemName: "Pizzas" },
+    { image: "/offer30.svg", discountPercentage: "30% OFF", couponCode: "FLAT30", itemName: "Rolls" }
   ];
 
   const [scrollPosition, setScrollPosition] = useState(0)
@@ -24,8 +24,25 @@ export const RestaurantHeader = () => {
   const { id } = useParams() // Extract restaurant ID from URL
   const [restaurant, setRestaurant] = useState({}) //Setting State for Restaurant Fetcher
   const cartItems = useSelector((state) => state.cart.cartItems) //Counter Redux
+  const [shuffledMenuItems, setShuffledMenuItems] = useState([])
   const dispatch = useDispatch()
   const navigate = useNavigate()
+
+  // Scroll to top on component mount
+  useEffect(() => {
+    window.scrollTo(0, 0); // Scroll to the top of the page
+  }, []); // Empty dependency array ensures this runs only on mount
+
+  //Shuffle items
+  useEffect(() => {
+    if (restaurant.menuItems && restaurant.menuItems.length > 0) {
+      // Shuffle and set the menu items once when the component mounts
+      const shuffled = [...restaurant.menuItems]
+        .sort(() => Math.random() - 0.5) // Shuffle array
+        .slice(0, 3); // Take up to 3 items
+      setShuffledMenuItems(shuffled);
+    }
+  }, [restaurant.menuItems]); // This runs only when menuItems change, typically on page load.
 
   //Scroller
   const handleScroll = (scrollAmount) => {
@@ -237,10 +254,10 @@ export const RestaurantHeader = () => {
             Deals for you
           </h3>
           <div className="leftAndRightNavigationButtons flex flex-row gap-2 ">
-            <button onClick={() => handleScroll(-320)} className="cursor-pointer buttonLeft top-[0rem] left-[0rem] w-[1.625rem] h-[1.625rem] rounded-xl" style={{ backgroundColor: buttonColor.left }}>
+            <button onClick={() => handleScroll(-300)} className="cursor-pointer buttonLeft top-[0rem] left-[0rem] w-[1.625rem] h-[1.625rem] rounded-xl" style={{ backgroundColor: buttonColor.left }}>
               <img src="/arrow-left.svg" alt="" />
             </button>
-            <button onClick={() => handleScroll(320)} className="cursor-pointer buttonRight top-[0rem] left-[2.063rem] w-[1.625rem] h-[1.625rem] rounded-xl" style={{ backgroundColor: buttonColor.right }}>
+            <button onClick={() => handleScroll(300)} className="cursor-pointer buttonRight top-[0rem] left-[2.063rem] w-[1.625rem] h-[1.625rem] rounded-xl" style={{ backgroundColor: buttonColor.right }}>
               <img src="/arrow-right.svg" alt="" />
             </button>
           </div>
@@ -258,7 +275,10 @@ export const RestaurantHeader = () => {
             <div className="flex flex-row justify-start gap-[10rem] max-w-full text-[1.413rem] text-white ">
               {SAMPLE_DATA.map((item, idx) => (
                 <div key={`${item.itemName}-${idx}`} className="w-[10rem] flex flex-col">
-                  <div className="w-[18rem] rounded-2xl h-[7rem] border-[.2rem] border-solid border-selection-tint " />
+                  <div className="w-[18rem] rounded-2xl h-[7rem] border-[.2rem] border-solid border-selection-tint relative">
+                    <img className="w-full h-full absolute left-[4.2rem]" src={item.image} alt="" />
+                    <p className="font-bold text-[2rem] absolute top-3 left-2 text-label-tint">{item.couponCode}</p>
+                  </div>
                 </div>
               ))}
             </div>
@@ -282,22 +302,26 @@ export const RestaurantHeader = () => {
           </div>
 
           <div className="flex flex-col gap-6 sm:flex sm:flex-row sm:justify-between py-[1rem] border-b-[.1rem] border-solid border-selection-tint pb-[2rem]">
-            {restaurant.menuItems && restaurant.menuItems.length > 0 ? (
-              // Shuffle the menu items array and then slice to get up to 3 items
-              [...restaurant.menuItems]
-                .sort(() => Math.random() - 0.5) // Shuffle array
-                .slice(0, 3) // Take up to 3 items
-                .map((item) => (
-                  <div key={item._id} className="flex-col topPicksCard sm:w-[20rem] h-[7rem] sm:h-[11rem] flex relative overflow-hidden rounded-3xl text-bg-white shadow-md" style={{
-                    border: "8px solid white", backgroundImage: `url(${item.image})`, backgroundSize: 'cover',
+            {shuffledMenuItems.length > 0 ? (
+              shuffledMenuItems.map((item) => (
+                <div
+                  key={item._id}
+                  className="flex-col topPicksCard sm:w-[20rem] h-[7rem] sm:h-[11rem] flex relative overflow-hidden rounded-3xl text-bg-white shadow-md"
+                  style={{
+                    border: '8px solid white',
+                    backgroundImage: `url(${item.image})`,
+                    backgroundSize: 'cover',
                     backgroundPosition: 'center',
-                  }}>
-                    <b className="top-[2rem] left-[.7rem] sm:top-[5.8rem] sm:left-[1rem] relative inline-block z-[2] text-2xl">{item.name.length < 16 ? item.name : (item.name.slice(0, 15) + '....')}</b>
-                    <div className="top-[2rem] left-[.7rem] sm:top-[6rem] sm:left-[1rem] text-mid relative z-[2]">
-                      {"₹" + item.price || "Up to ₹50"} {/* Sample default */}
-                    </div>
+                  }}
+                >
+                  <b className="top-[2rem] left-[.7rem] sm:top-[5.8rem] sm:left-[1rem] relative inline-block z-[2] text-2xl">
+                    {item.name.length < 16 ? item.name : item.name.slice(0, 15) + '....'}
+                  </b>
+                  <div className="top-[2rem] left-[.7rem] sm:top-[6rem] sm:left-[1rem] text-mid relative z-[2]">
+                    {'₹' + item.price || 'Up to ₹50'}
                   </div>
-                ))
+                </div>
+              ))
             ) : (
               <p>No menu items available</p> // Fallback in case of no menu items
             )}
@@ -429,8 +453,8 @@ export const RestaurantHeader = () => {
                           )}
                         </div>
                         {/* Sticky 'View Cart' Button */}
-                        {cartItems.reduce((a, b) => a + b.quantity, 0) > 0 && ( // Check if total quantity is greater than 0
-                          <div className="fixed bottom-0 left-[3.8rem] sm:left-1/2 sm:transform sm:-translate-x-1/2 z-50">
+                        {cartItems.reduce((a, b) => a + b.quantity, 0) > 0 ? ( // Check if total quantity is greater than 0
+                          <div className="cart-button show fixed bottom-0 left-[3.8rem] w-[15rem] sm:w-[20rem] z-50">
                             <button
                               onClick={() => {
                                 // Ensure all items have valid properties
@@ -443,9 +467,15 @@ export const RestaurantHeader = () => {
                                   console.error('Cart contains invalid items');
                                 }
                               }}
-                              className="bg-tradewind text-white w-[16rem] h-[4rem] sm:w-full sm:h-full sm:px-[8rem] sm:py-[1.3rem] rounded-t-3xl shadow-2xl sm:flex sm:items-center sm:gap-2 cursor-pointer cartButton border-l-[.3rem] border-r-[.3rem] border-t-[.3rem] border-solid border-white"
+                              className="bg-tradewind text-white w-full h-[4rem] rounded-t-3xl shadow-2xl flex items-center justify-center cursor-pointer border-l-[.3rem] border-r-[.3rem] border-t-[.3rem] border-solid border-white"
                             >
                               <b className="text-lg sm:text-xl">View Cart ({cartItems.reduce((a, b) => a + b.quantity, 0)})</b>
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="cart-button hide fixed bottom-0 left-[3.8rem] w-[15rem] sm:w-[20rem] z-50">
+                            <button className="bg-tradewind text-white w-full h-[4rem] rounded-t-3xl shadow-2xl flex items-center justify-center cursor-pointer border-l-[.3rem] border-r-[.3rem] border-t-[.3rem] border-solid border-white">
+                              <b className="text-lg sm:text-xl">View Cart (0)</b>
                             </button>
                           </div>
                         )}
