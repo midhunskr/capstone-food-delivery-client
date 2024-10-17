@@ -57,7 +57,7 @@ export const userLogout = async (setUser, navigate) => {
         setUser(null); // Clear user state
         dispatch(clearUser())
         sessionStorage.clear()
-        window.location.reload()
+        // window.location.reload()
         navigate('/'); // Redirect to home
         console.log(response);
 
