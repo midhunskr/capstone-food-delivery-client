@@ -52,6 +52,8 @@ export const userLogout = async (setUser, navigate, dispatch) => {
             method: 'POST',
             withCredentials: true
         });
+        console.log('Response:', response.data);
+        window.location.reload()
         localStorage.removeItem('authToken'); // Remove the token from local storage
         setUser(null); // Clear user state
         dispatch(clearUser())
@@ -59,7 +61,6 @@ export const userLogout = async (setUser, navigate, dispatch) => {
         Cookies.remove('__vercel_live_token')
         Cookies.remove('__vercel_toolbar') 
         navigate('/'); // Redirect to home
-        console.log(response);
 
         return response?.data;
     } catch (error) {
