@@ -34,6 +34,16 @@ export const userSignUp = async(data)=>{
     }
 }
 
+export const updateUser = async (userData) => {
+    try {
+      const response = await axiosInstance.put("/user/update", userData, { withCredentials: true });
+      return response.data; // Return the response from the backend
+    } catch (error) {
+      console.error("Error updating user:", error);
+      throw error; // Re-throw the error to be handled by the caller
+    }
+  };
+
 export const userLogout = async (setUser, navigate) => {
     try {
         const response = await axiosInstance({

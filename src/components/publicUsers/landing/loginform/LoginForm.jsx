@@ -5,7 +5,6 @@ import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { userLogin, userSignUp } from '../../../../services/userApi';
-import { useDispatch } from 'react-redux';
 
 export const LoginForm = () => {
   const [isRegistering, setIsRegistering] = useState(false);
@@ -94,12 +93,12 @@ export const LoginForm = () => {
               <button type="submit" className="bg-bg-white text-tradewind py-[.5rem] font-bold rounded-md text-xl border-[.14rem] border-solid border-tradewind w-full hover:bg-tradewind hover:text-bg-white hover:cursor-pointer">Login</button>
             </div>
           </form>
-          <p>Or Login using</p>
+          {/* <p>Or Login using</p>
           <div class="social-media">
             <i class='bx bxl-facebook'></i>
             <i class='bx bxl-google'></i>
             <i class='bx bxl-twitter'></i>
-          </div>
+          </div> */}
           <p className="RegisterBtn" onClick={handleRegisterClick}>
             <a href="#">Register Now</a>
           </p>
@@ -107,6 +106,16 @@ export const LoginForm = () => {
       ) : (
         <div className="Form register-form">
           <form onSubmit={signupForm.handleSubmit(onSubmitRegister)}>
+          <div className="input-box">
+              <i className="bx bxs-envelope"></i>
+              <label htmlFor="name">Name</label>
+              <input
+                type="text"
+                {...signupForm.register("name", { required: "Name is required" })}
+                placeholder="Enter Your Name*"
+              />
+              {signupForm.formState.errors.name && <p>{signupForm.formState.errors.name.message}</p>}
+            </div>
             <div className="input-box">
               <i className="bx bxs-envelope"></i>
               <label htmlFor="email">Email</label>
@@ -149,12 +158,12 @@ export const LoginForm = () => {
               <button type="submit" className="bg-bg-white text-tradewind py-[.5rem] font-bold rounded-md text-xl border-[.14rem] border-solid border-tradewind w-full hover:bg-tradewind hover:text-bg-white hover:cursor-pointer">Register</button>
             </div>
           </form>
-          <p>Or Register using</p>
+          {/* <p>Or Register using</p>
           <div class="social-media">
             <i class='bx bxl-facebook'></i>
             <i class='bx bxl-google'></i>
             <i class='bx bxl-twitter'></i>
-          </div>
+          </div> */}
           <p className="LoginBtn" onClick={handleLoginClick}>
             <a href="#">Login Now</a>
           </p>

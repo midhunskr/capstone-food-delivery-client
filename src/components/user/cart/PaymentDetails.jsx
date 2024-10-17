@@ -264,9 +264,21 @@ export const PaymentDetails = () => {
     const cartItems = useSelector((state) => state.cart.cartItems)
     const totalQuantity = cartItems.reduce((total, item) => total + item.quantity, 0); // Calculate total quantity
     const [isCartEmpty, setIsCartEmpty] = useState(totalQuantity === 0); // Track if cart is empty
+    const [couponCode, setCouponCode] = useState('');
+    const [discount, setDiscount] = useState(0);
+    const [error, setError] = useState('');
+    const totalAmount = useSelector((state) => state.cart.cartTotalAmount);
 
     const navigate = useNavigate()
     const dispatch = useDispatch()
+
+    const couponDiscounts = {
+        FLAT10: 10,
+        FLAT15: 15,
+        FLAT20: 20,
+        FLAT25: 25,
+        FLAT30: 30,
+    }
 
     // Scroll to top on component mount
     useEffect(() => {
@@ -333,6 +345,19 @@ export const PaymentDetails = () => {
     const deliveryFee = 35;
     const taxRate = (totalPrice * 18) / 100;
     const grandTotal = (totalPrice + deliveryFee + taxRate).toFixed(2);
+
+    const handleApplyCoupon = () => {
+        if (couponDiscounts[couponCode]) {
+            const discountPercentage = couponDiscounts[couponCode];
+            setDiscount(discountPercentage);
+            setError(''); // Clear any error message
+        } else {
+            setError('Invalid coupon code');
+            setDiscount(0);
+        }
+    };
+
+    const discountedAmount = grandTotal - (grandTotal * discount) / 100;
 
     //razorpay
     const loadRazorpayScript = () => {
@@ -495,12 +520,28 @@ export const PaymentDetails = () => {
                             <b className="text-label-tint font-normal text-mid">GST & Restaurant Charges</b>
                             <b className="text-label-tint font-normal text-mid">₹{taxRate}</b>
                         </div>
-                        <div className="pb-[2rem] pt-[1rem]">
+                        <div className="flex justify-between gap-4 pb-[2rem]">
+                            
+                            <input
+                                className="border-[.2rem] border-solid border-selection-tint bg-bg-white text-label-tint rounded-md h-10 w-full placeholder:text-selection-tint placeholder:pl-3"
+                                type="text"
+                                id="coupon"
+                                value={couponCode}
+                                onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                                placeholder="Enter coupon code"
+                            />
+                            <button className="bg-tradewind text-bg-white w-[6rem] rounded-md" onClick={handleApplyCoupon}>Apply</button>
+                        </div>
+
+                        {error && <p style={{ color: 'red' }}>{error}</p>}
+
+                        {discount > 0 && <p>You saved {discount}%!</p>}
+                        <div className="pb-[1rem]">
                             <div className="w-full border-[.1rem] border-solid border-tradewind" />
                         </div>
                         <div onClick={handlePayment} className="flex justify-between py-[1rem] bg-tradewind items-center w-full h-[3rem] px-[1rem] text-bg-white text-xl rounded-[.5rem] cursor-pointer shadow-lg">
                             <b>TO PAY</b>
-                            <b>₹{grandTotal}</b>
+                            <b>₹{discount > 0 ? discountedAmount.toFixed(2) : grandTotal}</b>
                         </div>
                     </div>
                 </div>
