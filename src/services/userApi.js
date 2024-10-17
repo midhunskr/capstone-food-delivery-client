@@ -1,5 +1,6 @@
 import toast from "react-hot-toast"
 import { axiosInstance } from "../config/axioInstance"
+import Cookies from 'js-cookie'
 
 export const userLogin = async(data)=>{
 
@@ -54,7 +55,9 @@ export const userLogout = async (setUser, navigate, dispatch) => {
         localStorage.removeItem('authToken'); // Remove the token from local storage
         setUser(null); // Clear user state
         dispatch(clearUser())
-        sessionStorage.clear()       
+        sessionStorage.clear()
+        Cookies.remove('__vercel_live_token')
+        Cookies.remove('__vercel_toolbar') 
         navigate('/'); // Redirect to home
         console.log(response);
 
