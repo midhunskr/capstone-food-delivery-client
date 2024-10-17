@@ -1,7 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
-import { RootLayout } from "../layouts/RootLayout";
 import { HomePage } from "../pages/user/HomePage";
-import { PizzaHut } from "../pages/user/restaurants/PizzaHut";
 import { CheckoutPage } from "../pages/user/CheckoutPage";
 import { UserLayout } from "../layouts/userLayout";
 import { PublicLandingPage } from "../pages/publicUsers/PublicLandingPage";

@@ -6,7 +6,6 @@ import { Header } from '../components/publicUsers/Header'
 import { axiosInstance } from '../config/axioInstance'
 import { clearUser, saveUser } from '../redux/features/userSlice'
 import { Footer } from '../components/publicUsers/Footer'
-import { UserAuth } from '../routes/protectedRoutes/UserAuth'
 
 export const UserLayout = () => {
   const { isUserExist, loading } = useSelector((state) => state.user);

@@ -54,7 +54,7 @@ export const userLogout = async (setUser, navigate, dispatch) => {
         });
         console.log('Response:', response.data);
         window.location.reload()
-        localStorage.removeItem('authToken'); // Remove the token from local storage
+        localStorage.removeItem('authToken', token); // Remove the token from local storage
         setUser(null); // Clear user state
         dispatch(clearUser())
         sessionStorage.clear()
