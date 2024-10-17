@@ -1,6 +1,5 @@
 import toast from "react-hot-toast"
 import { axiosInstance } from "../config/axioInstance"
-import { useDispatch } from "react-redux";
 
 export const userLogin = async(data)=>{
 
@@ -45,8 +44,7 @@ export const updateUser = async (userData) => {
     }
   };
 
-export const userLogout = async (setUser, navigate) => {
-    const dispatch = useDispatch()
+export const userLogout = async (setUser, navigate, dispatch) => {
     try {
         const response = await axiosInstance({
             url: '/user/logout',
@@ -56,14 +54,13 @@ export const userLogout = async (setUser, navigate) => {
         localStorage.removeItem('authToken'); // Remove the token from local storage
         setUser(null); // Clear user state
         dispatch(clearUser())
-        sessionStorage.clear()
-        // window.location.reload()
+        sessionStorage.clear()       
         navigate('/'); // Redirect to home
         console.log(response);
 
         return response?.data;
     } catch (error) {
-        toast.error('Logout Failed');
+        // toast.error('Logout Failed');
         console.log(error);
     }
 }

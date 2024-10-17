@@ -30,7 +30,8 @@ export const UserHeader = () => {
 
   const handleLogout = async () => {
     try {
-      await userLogout(setUser, navigate); // Call userLogout with setUser and navigate
+      await userLogout(setUser, navigate, dispatch); // Call userLogout with setUser and navigate
+      window.location.reload()
     } catch (error) {
       console.error('Logout failed:', error);
     }
