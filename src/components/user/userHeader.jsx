@@ -31,9 +31,6 @@ export const UserHeader = () => {
   const handleLogout = async () => {
     try {
       await userLogout(setUser, navigate); // Call userLogout with setUser and navigate
-      dispatch(clearUser())
-      sessionStorage.clear();
-      window.location.reload()
     } catch (error) {
       console.error('Logout failed:', error);
     }
