@@ -1,12 +1,15 @@
 import PropTypes from "prop-types"
 import './RestaurantAndCuisine.css'
 import { useEffect, useRef, useState } from "react"
+import { useParams } from "react-router-dom";
+import { axiosInstance } from "../../../config/axioInstance";
+import toast from "react-hot-toast";
 
-export const ItemScroller = ({ className = "" }) => {
+export const ItemScroller = () => {
 
   //Data
   const SAMPLE_DATA = [
-    { image: "/biriyani-1@2x.png", discountPercentage: "10% OFF", upToAmount: "Up to ₹70", itemName: "Biriyani" },
+    { image: "/masala-dosa.png", discountPercentage: "10% OFF", upToAmount: "Up to ₹70", itemName: "Biriyani" },
     { image: "/noodles-1@2x.png", discountPercentage: "15% OFF", upToAmount: "Up to ₹90", itemName: "Noodles" },
     { image: "/burgers-1@2x.png", discountPercentage: "35% OFF", upToAmount: "Up to ₹120", itemName: "Burgers" },
     { image: "/pizza-5@2x.png", discountPercentage: "10% OFF", upToAmount: "Up to ₹40", itemName: "Pizzas" },
@@ -24,11 +27,11 @@ export const ItemScroller = ({ className = "" }) => {
     { image: "/parotta-1@2x.png", discountPercentage: "10% OFF", upToAmount: "Up to ₹40", itemName: "Parotta" },
     { image: "/parotta-1@2x.png", discountPercentage: "10% OFF", upToAmount: "Up to ₹40", itemName: "Parotta" },
   ];
-
   const [scrollPosition, setScrollPosition] = useState(0)
+  const [restaurants, setRestaurants] = useState([])
   const [buttonColor, setButtonColor] = useState({ left: '#CACACA', right: '#CACACA' })
-
   const containerRef = useRef();
+  const { id } = useParams() // Extract restaurant ID from URL
 
   const handleScroll = (scrollAmount) => {
     const container = containerRef.current;
@@ -60,6 +63,50 @@ export const ItemScroller = ({ className = "" }) => {
     });
   }, [scrollPosition]);
 
+  // Fetch restaurant and items
+  const fetchRestaurants = async () => {
+    try {
+      const response = await axiosInstance({
+        url: '/restaurant/all-restaurants',
+        method: 'GET',
+        withCredentials: true
+      })
+
+      console.log(response);
+
+
+      // // Set restaurants from the correct path in the response
+      // if (Array.isArray(response?.data?.restaurants)) {
+      //   setRestaurants(response.data.restaurants); // Correctly accessing the restaurants array
+      // } else {
+      //   setRestaurants([]); // Fallback to an empty array if restaurants is not available
+      // }
+
+      // Check if the restaurants array exists in the response
+      if (Array.isArray(response?.data?.restaurants)) {
+        const allMenuItems = response.data.restaurants.flatMap(restaurant =>
+          restaurant.menuItems.map(menuItem => ({
+            ...menuItem,
+            restaurantName: restaurant.name, // Add restaurant name for context
+            restaurantLocation: restaurant.location // Add restaurant location for context
+          }))
+        );
+
+        setRestaurants(allMenuItems); // Set all menu items from all restaurants
+      } else {
+        setRestaurants([]); // Fallback to an empty array if restaurants is not available
+      }
+
+    } catch (error) {
+      console.log(error);
+      toast.error('Error fetching restaurant data');
+    }
+  }
+
+  useEffect(() => {
+    fetchRestaurants()
+  }, [])
+
   return (
     <>
       <div className="px-[1rem] md:px-[2rem] lg:px-[10rem] xl:px-[25rem] pt-[2rem]">
@@ -89,12 +136,14 @@ export const ItemScroller = ({ className = "" }) => {
             }}
           >
             <div className="flex flex-row justify-start gap-[2.7rem] max-w-full text-[1.413rem]">
-              {SAMPLE_DATA.map((item, index) => (
+              {restaurants.map((item, index) => (
                 <div key={index} className="w-[10rem] flex flex-col">
-                  <div className="itemCard overflow-hidden w-[6rem] h-[5rem] md:w-[8rem] md:h-[6rem]" style={{ backgroundImage: `url(${item.image})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+                  <div className="itemCard overflow-hidden w-[6rem] h-[5rem] md:w-[10rem] md:h-[6rem]" style={{ backgroundImage: `url(${item.image})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
                   <div className="hotelLabel bottom-0 w-full text-center py-[.5rem]">
                     <b className="font-normal text-item-tint text-lg">
-                      {item.itemName}
+                      {item.name.length > 11
+                        ? `${item.name.slice(0, 11)}...`
+                        : item.name}
                     </b>
                   </div>
                 </div>

@@ -18,6 +18,9 @@ export const RestaurantListing = () => {
         withCredentials: true
       })
 
+      console.log(response);
+      
+
       // Set restaurants from the correct path in the response
       if (Array.isArray(response?.data?.restaurants)) {
         setRestaurants(response.data.restaurants); // Correctly accessing the restaurants array

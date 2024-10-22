@@ -27,6 +27,7 @@ export default {
         navy: "rgba(0, 0, 124, 0.2)",
         jaffa: "#f47c57",       
         tradewind: "#68b19f",
+        tradewindLite: "#8fc5b8",
         gainsboro: "#d9d9d9",
         goldenrod: "#F8CF7C"  
       },

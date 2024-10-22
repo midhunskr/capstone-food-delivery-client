@@ -24,6 +24,7 @@ export const RestaurantHeader = () => {
   const { id } = useParams() // Extract restaurant ID from URL
   const [restaurant, setRestaurant] = useState({}) //Setting State for Restaurant Fetcher
   const cartItems = useSelector((state) => state.cart.cartItems) //Counter Redux
+  
   const [shuffledMenuItems, setShuffledMenuItems] = useState([])
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -102,18 +103,56 @@ export const RestaurantHeader = () => {
     }
   }, [id]);
 
+  // Update cart in backend
+  const updateCart = debounce(async () => {
+    try {
+      const menuItems = cartItems.map(item => ({
+        menuItemId: item.menuItem ? item.menuItem : item._id,
+        quantity: item.quantity,
+      }));
+      const restaurantId = `${id}`;
+
+      const response = await axiosInstance({
+        url: '/cart/update',
+        method: 'POST',
+        withCredentials: true,
+        data: { menuItems, restaurantId },
+      });
+
+      console.log("Cart updated:", response.data);
+
+      // If cart is cleared, update the local state (Redux and UI)
+      if (response.data.cart.cartItems.length === 0) {
+        dispatch(clearCart()); // Clear the cart in Redux
+      }
+
+    } catch (error) {
+      console.error("Failed to update cart:", error);
+    }
+  }, 500); // 500ms debounce time
+
+  // Effect to update the cart when cart items change
+  useEffect(() => {
+    if (cartItems.length > 0) {
+      updateCart()
+    }
+  }, [cartItems]); // Dependency array includes cartItems
+
   // Fetch cart
   useEffect(() => {
     const fetchCart = async () => {
       try {
+        const restaurantId = `${id}`;
         const response = await axiosInstance({
-          url: '/cart',
+          url: `/cart?restaurantId=${restaurantId}`,
           method: 'GET',
           withCredentials: true,
         });
 
         const fetchedCartItems = response.data.cart.cartItems;
         console.log("Fetched cart items:", fetchedCartItems);
+        console.log(response);
+        
 
         // Ensure that either _id or menuItem exists and quantity is > 0
         const validCartItems = fetchedCartItems.filter(item => (item._id || item.menuItem) && item.quantity > 0);
@@ -154,7 +193,7 @@ export const RestaurantHeader = () => {
     }
 
     // Update the cart in the backend
-    await updateCart()
+    // await updateCart()
   };
 
   // Handle increment action
@@ -168,41 +207,6 @@ export const RestaurantHeader = () => {
     dispatch(decrement(item._id || item.menuItem)); // Dispatch Redux action to decrement
     // await updateCart()
   };
-
-  // Update cart in backend
-  const updateCart = debounce(async () => {
-    try {
-      const menuItems = cartItems.map(item => ({
-        menuItemId: item.menuItem ? item.menuItem : item._id,
-        quantity: item.quantity,
-      }));
-      const restaurantId = `${id}`;
-
-      const response = await axiosInstance({
-        url: '/cart/update',
-        method: 'POST',
-        withCredentials: true,
-        data: { menuItems, restaurantId },
-      });
-
-      console.log("Cart updated:", response.data);
-
-      // If cart is cleared, update the local state (Redux and UI)
-      if (response.data.cart.cartItems.length === 0) {
-        dispatch(clearCart()); // Clear the cart in Redux
-      }
-
-    } catch (error) {
-      console.error("Failed to update cart:", error);
-    }
-  }, 500); // 500ms debounce time
-
-  // Effect to update the cart when cart items change
-  useEffect(() => {
-    if (cartItems.length > 0) {
-      updateCart()
-    }
-  }, [cartItems]); // Dependency array includes cartItems
 
   return (
     <>
