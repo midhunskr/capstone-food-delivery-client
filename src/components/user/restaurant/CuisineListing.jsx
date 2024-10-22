@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
 import './RestaurantAndCuisine.css'
 import { useEffect, useRef, useState } from "react";
+import { axiosInstance } from "../../../config/axioInstance";
 
 export const CuisineListing = () => {
 
@@ -15,6 +16,7 @@ export const CuisineListing = () => {
   //Scroller
   const [scrollPosition, setScrollPosition] = useState(0)
   const [buttonColor, setButtonColor] = useState({ left: '#CACACA', right: '#CACACA' })
+  const [restaurants, setRestaurants] = useState([])
 
   const containerRef = useRef();
 
@@ -48,6 +50,43 @@ export const CuisineListing = () => {
       right: atRightLimit ? '#E0E0E0' : '#CACACA',
     });
   }, [scrollPosition]);
+
+  // Fetch restaurant and items
+  const fetchRestaurants = async () => {
+    try {
+      const response = await axiosInstance({
+        url: '/restaurant/all-restaurants',
+        method: 'GET',
+        withCredentials: true
+      })
+
+      console.log(response);
+
+      // Check if the restaurants array exists in the response
+      if (Array.isArray(response?.data?.restaurants)) {
+        const allMenuItems = response.data.restaurants.flatMap(restaurant =>
+          restaurant.menuItems.map(menuItem => ({
+            ...menuItem,
+            restaurantName: restaurant.name, // Add restaurant name for context
+            restaurantLocation: restaurant.location, // Add restaurant location for context
+            restaurantId: restaurant._id
+          }))
+        );
+
+        setRestaurants(allMenuItems); // Set all menu items from all restaurants
+      } else {
+        setRestaurants([]); // Fallback to an empty array if restaurants is not available
+      }
+
+    } catch (error) {
+      console.log(error);
+      toast.error('Error fetching restaurant data');
+    }
+  }
+
+  useEffect(() => {
+    fetchRestaurants()
+  }, [])
 
   return (
     <>

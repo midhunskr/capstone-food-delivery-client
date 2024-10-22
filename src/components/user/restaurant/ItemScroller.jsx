@@ -1,7 +1,7 @@
 import PropTypes from "prop-types"
 import './RestaurantAndCuisine.css'
 import { useEffect, useRef, useState } from "react"
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { axiosInstance } from "../../../config/axioInstance";
 import toast from "react-hot-toast";
 
@@ -74,21 +74,14 @@ export const ItemScroller = () => {
 
       console.log(response);
 
-
-      // // Set restaurants from the correct path in the response
-      // if (Array.isArray(response?.data?.restaurants)) {
-      //   setRestaurants(response.data.restaurants); // Correctly accessing the restaurants array
-      // } else {
-      //   setRestaurants([]); // Fallback to an empty array if restaurants is not available
-      // }
-
       // Check if the restaurants array exists in the response
       if (Array.isArray(response?.data?.restaurants)) {
         const allMenuItems = response.data.restaurants.flatMap(restaurant =>
           restaurant.menuItems.map(menuItem => ({
             ...menuItem,
             restaurantName: restaurant.name, // Add restaurant name for context
-            restaurantLocation: restaurant.location // Add restaurant location for context
+            restaurantLocation: restaurant.location, // Add restaurant location for context
+            restaurantId: restaurant._id
           }))
         );
 
@@ -106,6 +99,9 @@ export const ItemScroller = () => {
   useEffect(() => {
     fetchRestaurants()
   }, [])
+
+  console.log(restaurants);
+
 
   return (
     <>
@@ -137,16 +133,18 @@ export const ItemScroller = () => {
           >
             <div className="flex flex-row justify-start gap-[2.7rem] max-w-full text-[1.413rem]">
               {restaurants.map((item, index) => (
-                <div key={index} className="w-[10rem] flex flex-col">
-                  <div className="itemCard overflow-hidden w-[6rem] h-[5rem] md:w-[10rem] md:h-[6rem]" style={{ backgroundImage: `url(${item.image})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
-                  <div className="hotelLabel bottom-0 w-full text-center py-[.5rem]">
-                    <b className="font-normal text-item-tint text-lg">
-                      {item.name.length > 11
-                        ? `${item.name.slice(0, 11)}...`
-                        : item.name}
-                    </b>
+                <Link key={index} to={`/user/restaurant/${item.restaurantId}`}>
+                  <div key={index} className="w-[10rem] flex flex-col">
+                    <div className="itemCard overflow-hidden w-[6rem] h-[5rem] md:w-[10rem] md:h-[9rem] " style={{ backgroundImage: `url(${item.image2})`, backgroundSize: 'contain', backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }} />
+                    <div className="hotelLabel bottom-0 w-full text-center py-[.5rem]">
+                      <b className="font-normal text-item-tint text-lg">
+                        {item.name.length > 11
+                          ? `${item.name.slice(0, 11)}...`
+                          : item.name}
+                      </b>
+                    </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </div>
