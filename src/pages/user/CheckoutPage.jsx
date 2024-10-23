@@ -446,8 +446,9 @@ export const CheckoutPage = () => {
                                         ) : (
                                             <div className="px-[1rem] py-[1rem] sm:py-[2rem] sm:px-[4rem] h-auto flex flex-col gap-[2rem] border-2 border-solid border-selection-tint rounded-2xl">
                                                 <div className="flex gap-3">
+                                                    {console.log(cartItems)}
                                                     <div className="w-[6rem] h-[6rem] border-4 border-solid border-white rounded-xl shadow-md" style={{
-                                                        backgroundImage: `url(${cartItems[0]?.image})`, backgroundSize: 'cover',
+                                                        backgroundImage: `url(${cartItems[0].image})`, backgroundSize: 'cover',
                                                         backgroundPosition: 'left center',
                                                     }} />
                                                     <div className="flex flex-col gap-3">

@@ -109,6 +109,7 @@ export const RestaurantHeader = () => {
       const menuItems = cartItems.map(item => ({
         menuItemId: item.menuItem ? item.menuItem : item._id,
         quantity: item.quantity,
+        image: item.image1
       }));
       const restaurantId = `${id}`;
 

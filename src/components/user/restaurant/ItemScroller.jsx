@@ -137,7 +137,7 @@ export const ItemScroller = () => {
                   <div key={index} className="w-[10rem] flex flex-col">
                     <div className="itemCard overflow-hidden w-[6rem] h-[5rem] md:w-[10rem] md:h-[9rem] " style={{ backgroundImage: `url(${item.image2})`, backgroundSize: 'contain', backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }} />
                     <div className="hotelLabel bottom-0 w-full text-center py-[.5rem]">
-                      <b className="font-normal text-item-tint text-lg">
+                      <b className="font-normal text-item-tint text-lg ">
                         {item.name.length > 11
                           ? `${item.name.slice(0, 11)}...`
                           : item.name}

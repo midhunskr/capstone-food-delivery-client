@@ -109,7 +109,6 @@ export const ProfilePage = () => {
         }
     };
 
-
     // Fetch Orders
     const fetchOrders = async (page = 1) => {
         try {
@@ -119,10 +118,15 @@ export const ProfilePage = () => {
                 withCredentials: true,
             });
 
+            console.log(response);
+
+
             if (response?.data?.orders && response.data.orders.length > 0) {
                 setOrders((prevOrders) => [...prevOrders, ...response.data.orders]);
                 setTotalPages(response.data.totalPages);
-                setLoadingMore(false);
+                // setOrders(response.data.orders)
+                // setTotalPages(response.data.totalPages)
+                setLoadingMore(false)
             } else if (response?.data?.orders && response.data.orders.length === 0) {
                 console.log("No orders found");
                 // toast.error("No orders found");
@@ -218,10 +222,11 @@ export const ProfilePage = () => {
                         ) : (
                             <p>No recent orders</p>
                         )}
-
+                        {console.log("Current Page:", page)}
+                        {console.log("Total Pages:", totalPages)}
                         {page < totalPages && (
                             <button
-                                className="mt-4 p-2 bg-bg-white border-[.1rem] border-solid border-tradewind text-tradewind rounded-md "
+                                className="mt-4 p-2 w-full bg-bg-white border-[.1rem] border-solid border-tradewind text-tradewind rounded-md cursor-pointer"
                                 onClick={handleLoadMore}
                                 disabled={loadingMore}
                             >
