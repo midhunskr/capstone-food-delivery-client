@@ -34,4 +34,26 @@ export const getAllRestaurants = async () => {
       console.error("Error fetching restaurants:", error);
       return { success: false, message: "Failed to fetch restaurants" };
     }
-  };
+};
+
+export const updateRestaurant = async (id, data) => {
+  try {
+    const response = await axiosInstance.put(`/restaurant/${id}`, data);
+
+    return { success: true, ...response.data };
+  } catch (error) {
+    console.error('Error updating restaurant:', error);
+    return { success: false, message: error.response?.data?.message || 'Failed to update restaurant' };
+  }
+};
+
+export const deleteRestaurant = async (id) => {
+  try {
+    const response = await axiosInstance.delete(`/restaurant/${id}`);
+
+    return { success: true, ...response.data };
+  } catch (error) {
+    console.error('Error deleting restaurant:', error);
+    return { success: false, message: error.response?.data?.message || 'Failed to delete restaurant' };
+  }
+};

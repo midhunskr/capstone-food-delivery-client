@@ -21,8 +21,9 @@ export const AdminPostLoginLayout = () => {
       const response = await axiosInstance({
         method: "GET",
         url: "/user/check-user",
+        withCredentials: true
       });
-      console.log("API Response:", response.data)
+      console.log("API Response:", response)
       if (response.data.role === 'admin') {
         dispatch(saveAdmin(response.data))
       } else {

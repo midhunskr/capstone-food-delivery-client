@@ -18,6 +18,7 @@ export const ProfilePage = () => {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [loadingMore, setLoadingMore] = useState(false);
+    const [rating, setRating] = useState({})
 
     // User Logout
     const handleLogout = async () => {
@@ -53,7 +54,6 @@ export const ProfilePage = () => {
                 withCredentials: true,
             });
             setAddresses(response?.data || []);
-            console.log("response=============", response.data);
             setLoadingAddresses(false);
         } catch (error) {
             console.error("Error fetching addresses:", error);
@@ -61,11 +61,6 @@ export const ProfilePage = () => {
             setLoadingAddresses(false);
         }
     };
-
-    useEffect(() => {
-        fetchUserProfile();
-        fetchAddresses();
-    }, []);
 
     const handleAddOrUpdateAddress = async (e) => {
         e.preventDefault();
@@ -112,45 +107,85 @@ export const ProfilePage = () => {
     // Fetch Orders
     const fetchOrders = async (page = 1) => {
         try {
-            const response = await axiosInstance({
-                url: `/payment/get-user-orders?page=${page}&limit=5`,
-                method: "GET",
-                withCredentials: true,
-            });
+            const response = await axiosInstance.get(`/payment/get-user-orders?page=${page}&limit=5`, { withCredentials: true });
+            const fetchedOrders = response.data.orders;
 
-            console.log(response);
+            // Create an array to hold the ratings promises
+            const ratingsPromises = fetchedOrders.map(order =>
+                axiosInstance.get(`/user/ratings/${order.orderId}`, { withCredentials: true })
+                    .then(ratingsResponse => ({
+                        orderId: order.orderId,
+                        rating: ratingsResponse.data.rating || { rating: 0, count: 0 }
+                    }))
+                    .catch(() => ({ orderId: order.orderId, rating: { rating: 0, count: 0 } }))
+            );
 
+            // Wait for all ratings to be fetched
+            const ratings = await Promise.all(ratingsPromises);
+            console.log(ratings);
+            
 
-            if (response?.data?.orders && response.data.orders.length > 0) {
-                setOrders((prevOrders) => [...prevOrders, ...response.data.orders]);
+            if (fetchedOrders && fetchedOrders.length > 0) {
+                setOrders((prevOrders) => [...prevOrders, ...fetchedOrders]);
+
+                // Set initial ratings
+                const initialRatings = {};
+                ratings.forEach(({ orderId, rating }) => {
+                    initialRatings[orderId] = rating; // Store rating for each order
+                });
+                setRating(prevRatings => ({ ...prevRatings, ...initialRatings }));
+
                 setTotalPages(response.data.totalPages);
-                // setOrders(response.data.orders)
-                // setTotalPages(response.data.totalPages)
-                setLoadingMore(false)
-            } else if (response?.data?.orders && response.data.orders.length === 0) {
-                console.log("No orders found");
-                // toast.error("No orders found");
                 setLoadingMore(false);
             } else {
-                console.log("No order data found");
-                toast.error("No more orders to load");
                 setLoadingMore(false);
             }
         } catch (error) {
             console.error("Error fetching order data:", error);
-            if (error.response && error.response.status === 404) {
-                // toast.error("No orders found");
-            } else {
-                toast.error("Error fetching order data");
-            }
+            toast.error("Error fetching order data");
             setLoadingMore(false);
         }
     };
 
-    // Initial load of orders
     useEffect(() => {
+        fetchUserProfile();
+        fetchAddresses();
         fetchOrders();
     }, []);
+
+    const handleRatingChange = async (e, orderId) => {
+        const newRating = parseFloat(e.target.value);
+
+        setRating((prev) => ({
+            ...prev,
+            [orderId]: {
+                ...prev[orderId],
+                rating: newRating,
+                count: prev[orderId].count + (newRating < 4 ? 1 : 0),
+            },
+        }));
+
+        // Check if orderId is defined and not null
+        if (!orderId) {
+            console.error('Order ID is missing. Cannot submit rating.');
+            return; // Exit the function if orderId is not available
+        }
+
+        try {
+            // Send the rating to the backend
+            const response = await axiosInstance.post('/user/submit-rating', {
+                orderId,
+                rating: newRating,
+            });
+            console.log('Rating submitted successfully:', response.data);
+        } catch (error) {
+            console.error('Error submitting rating:', error);
+        }
+    };
+
+    useEffect(() => {
+        console.log("Rating state after render:", rating);
+    }, [rating]);
 
     // Handle "Load More"
     const handleLoadMore = () => {
@@ -169,6 +204,7 @@ export const ProfilePage = () => {
         { name: 'Update Profile' },
         { name: 'Logout' }
     ];
+
 
     // Render section content
     const renderSectionContent = () => {
@@ -190,20 +226,56 @@ export const ProfilePage = () => {
                                             <b className="font-medium text-sm text-label-tint">{order.restaurant.location}</b>
                                         </div>
                                     </div>
-                                    <p className="w-[22rem]">
-                                        Delivered on{" "}
-                                        {new Date(order.createdAt).toLocaleDateString('en-US', {
-                                            weekday: 'short',
-                                            year: 'numeric',
-                                            month: 'short',
-                                            day: 'numeric'
-                                        })}, {" "}
-                                        {new Date(order.createdAt).toLocaleTimeString('en-US', {
-                                            hour: '2-digit',
-                                            minute: '2-digit',
-                                            hour12: true
-                                        })}
-                                    </p>
+                                    <div className="">
+                                        <p>Order# {order.orderId}</p>
+                                        <p>
+                                            Delivered on{" "}
+                                            {new Date(order.createdAt).toLocaleDateString('en-US', {
+                                                weekday: 'short',
+                                                year: 'numeric',
+                                                month: 'short',
+                                                day: 'numeric'
+                                            })}, {" "}
+                                            {new Date(order.createdAt).toLocaleTimeString('en-US', {
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                                hour12: true
+                                            })}
+                                        </p>
+                                    </div>
+                                    <div className="flex items-center pb-[2rem] h-0 gap-3">
+                                        <div className="rating rating-sm">
+                                            <input type="radio" name={`rating-${order.orderId}`} className="hidden" />
+                                            {/* Add a hidden radio input to represent the "no selection" or 0 rating */}
+                                            <input
+                                                type="radio"
+                                                name={`rating-${order.orderId}`}
+                                                value={0}
+                                                className="hidden"
+                                                onChange={(e) => handleRatingChange(e, order.orderId)}
+                                                checked={rating[order.orderId]?.rating === 0} // Checked if rating is 0
+                                            />
+                                            {[...Array(5)].map((_, idx) => {
+                                                const starValue = idx + 1; // Star values from 1 to 5
+                                                return (
+                                                    <React.Fragment key={idx}>
+                                                        <input
+                                                            type="radio"
+                                                            name={`rating-${order.orderId}`}
+                                                            value={starValue}
+                                                            checked={rating[order.orderId]?.rating === starValue} // Check the current rating value
+                                                            onChange={(e) => handleRatingChange(e, order.orderId)}
+                                                            className="mask mask-star-2 bg-tradewind"
+                                                        />
+                                                    </React.Fragment>
+                                                );
+                                            })}
+                                        </div>
+                                        <div>
+                                            <p className="">({rating[order.orderId]?.rating})</p>
+                                            {/* <p>Number of Ratings Below 4: {rating[order.orderId]?.count}</p> */}
+                                        </div>
+                                    </div>
                                     <div className="flex flex-col sm:flex-row gap-4">
                                         {order.menuItems.map((menuItem, idx) => (
                                             <div key={idx} className="flex gap-2 sm:border-r-[.2rem] border-solid border-selection-tint pr-[.5rem]">
@@ -233,8 +305,11 @@ export const ProfilePage = () => {
                                 {loadingMore ? "Loading..." : "Load More"}
                             </button>
                         )}
+
                     </div>
+
                 );
+
             case 1: // Addresses
                 return (
                     <div className="bg-bg-white p-4 rounded-lg shadow-lg border border-solid border-selection-tint w-1/2">

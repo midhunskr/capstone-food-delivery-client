@@ -1,6 +1,26 @@
 import PropTypes from "prop-types";
+import React from "react";
+import Backdrop from '@mui/material/Backdrop';
+import Box from '@mui/material/Box';
+import Modal from '@mui/material/Modal';
+import Fade from '@mui/material/Fade';
+import { LoginForm } from "./landing/loginform/LoginForm";
+
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: '90%', // Width will be responsive for smaller screens
+  maxWidth: 450, // Max width for larger screens
+  p: 4,
+};
+
 
 export const CallToAction = () => {
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
   return (
     <div>
 
@@ -43,11 +63,30 @@ export const CallToAction = () => {
               </div>
             </div>
             <div className="self-stretch flex flex-row items-start justify-center">
-              <button className="cursor-pointer [border:none] py-[0.968rem] px-[1.687rem] bg-goldenrod w-[16.5rem] rounded-51xl flex flex-row items-start justify-start box-border whitespace-nowrap hover:bg-darkkhaki">
+              <button onClick={handleOpen} className="cursor-pointer [border:none] py-[0.968rem] px-[1.687rem] bg-goldenrod w-[16.5rem] rounded-51xl flex flex-row items-start justify-start box-border whitespace-nowrap hover:bg-darkkhaki">
                 <div className="relative text-[2.313rem] text-dark text-center font-bold">
                   Order Now
                 </div>
               </button>
+              <Modal
+                aria-labelledby="transition-modal-title"
+                aria-describedby="transition-modal-description"
+                open={open}
+                onClose={handleClose}
+                closeAfterTransition
+                slots={{ backdrop: Backdrop }}
+                slotProps={{
+                  backdrop: {
+                    timeout: 500,
+                  },
+                }}
+              >
+                <Fade in={open}>
+                  <Box sx={style}>
+                    <LoginForm />
+                  </Box>
+                </Fade>
+              </Modal>
             </div>
             <img
               className="w-[3.306rem] h-[3.275rem] absolute !m-[0] bottom-[0.788rem] left-[3.8rem] overflow-hidden shrink-0 object-contain"

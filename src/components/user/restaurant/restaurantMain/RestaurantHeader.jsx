@@ -5,6 +5,7 @@ import { axiosInstance } from "../../../../config/axioInstance"
 import { useSelector, useDispatch } from 'react-redux'
 import { decrement, increment, addToCart, clearCart } from "../../../../redux/features/cartSlice"
 import debounce from 'lodash.debounce'
+import toast from "react-hot-toast"
 
 
 export const RestaurantHeader = () => {
@@ -24,8 +25,9 @@ export const RestaurantHeader = () => {
   const { id } = useParams() // Extract restaurant ID from URL
   const [restaurant, setRestaurant] = useState({}) //Setting State for Restaurant Fetcher
   const cartItems = useSelector((state) => state.cart.cartItems) //Counter Redux
-  
   const [shuffledMenuItems, setShuffledMenuItems] = useState([])
+  const [rating, setRating] = useState({})
+  const [orders, setOrders] = useState([]);
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
@@ -103,6 +105,57 @@ export const RestaurantHeader = () => {
     }
   }, [id]);
 
+  const fetchOrders = async () => {
+    try {
+      const response = await axiosInstance.get('/payment/get-user-orders', { withCredentials: true });
+      const fetchedOrders = response.data.orders;
+      console.log(fetchedOrders);
+
+      // Map through orders and integrate cartItems (by menuItem or other unique identifier)
+      const ordersWithMenuItems = fetchedOrders.map(order => {
+        const matchingCartItem = cartItems.find(item => item.menuItem === order.menuItems[0]?._id); // Find the matching cart item by menuItem ID
+        
+        return {
+          ...order,
+          menuItem: matchingCartItem ? matchingCartItem : null, // Add the menuItem from the cart if available
+        };
+      });
+      
+      // Create an array to hold the ratings promises
+      const ratingsPromises = ordersWithMenuItems.map(order =>
+        axiosInstance.get(`/user/ratings/${order.orderId}`, { withCredentials: true })
+          .then(ratingsResponse => ({
+            orderId: order.orderId,
+            rating: ratingsResponse.data.rating || { rating: 0, count: 0 }
+          }))
+          .catch(() => ({ orderId: order.orderId, rating: { rating: 0, count: 0 } }))
+      );
+
+      // Wait for all ratings to be fetched
+      const ratings = await Promise.all(ratingsPromises);
+      console.log("Fetched Ratings:", ratings);
+
+      if (fetchedOrders && fetchedOrders.length > 0) {
+        setOrders((prevOrders) => [...prevOrders, ...ordersWithMenuItems]);
+
+        // Set initial ratings
+        const initialRatings = {};
+        ratings.forEach(({ orderId, rating }) => {
+          initialRatings[orderId] = rating; // Store rating for each order
+        });
+        setRating(prevRatings => ({ ...prevRatings, ...initialRatings }));
+      }
+    } catch (error) {
+      console.error("Error fetching order data:", error);
+      // toast.error("Error fetching order data");
+    }
+  };
+
+  // Fetch orders on component mount
+  useEffect(() => {
+    fetchOrders();
+  }, [cartItems]);
+
   // Update cart in backend
   const updateCart = debounce(async () => {
     try {
@@ -152,11 +205,12 @@ export const RestaurantHeader = () => {
 
         const fetchedCartItems = response.data.cart.cartItems;
         console.log("Fetched cart items:", fetchedCartItems);
-        console.log(response);
-        
+
 
         // Ensure that either _id or menuItem exists and quantity is > 0
         const validCartItems = fetchedCartItems.filter(item => (item._id || item.menuItem) && item.quantity > 0);
+        console.log(validCartItems);
+
 
         // Dispatch items to Redux with correct quantities from backend
         validCartItems.forEach(item => {
@@ -400,12 +454,12 @@ export const RestaurantHeader = () => {
                             <img className="w-5" src="/offer-tag.svg" alt="" />
                             <b>50% OFF USE FIRSTBITE</b>
                           </div>
-                          <div className="hidden sm:flex gap-2">
+                          {/* <div className="hidden sm:flex gap-2">
                             <svg className="w-5 h-5 fill-tradewind" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                               <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
                             </svg>
                             <b className="text-lg font-medium">4.2 (12)</b>
-                          </div>
+                          </div> */}
                           <div className="hidden sm:inline-block text-mid text-label-tint sm:w-full py-5">
                             {item.description}
                           </div>

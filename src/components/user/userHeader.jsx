@@ -1,11 +1,12 @@
 import PropTypes from "prop-types";
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux'
 import { userLogout } from "../../services/userApi";
 import { Backdrop, Box, Fade, Modal } from "@mui/material";
 import { axiosInstance } from "../../config/axioInstance";
 import { clearUser } from "../../redux/features/userSlice";
+
 
 const style = {
   position: 'absolute',
@@ -23,7 +24,7 @@ export const UserHeader = () => {
   const navigate = useNavigate()
   const [user, setUser] = useState(null)
   const dispatch = useDispatch()
-
+  const { id } = useParams()
   const [searchQuery, setSearchQuery] = useState(""); // Search input state
   const [searchResults, setSearchResults] = useState([]); // Search results state
   const [isLoading, setIsLoading] = useState(false); // Loading state
@@ -259,7 +260,7 @@ export const UserHeader = () => {
           </div>
         </div>
         <div className="flex px-[1rem] sm:px-0 flex-row items-start justify-start gap-[1.187rem] shrink-0">
-          <Link to={'/user/checkout'}><div className="flex flex-col items-start justify-start pt-[0.268rem] px-[0rem] pb-[0rem] cursor-pointer">
+          <Link to={`/user/restaurant/${id}/checkout`}><div className="flex flex-col items-start justify-start pt-[0.268rem] px-[0rem] pb-[0rem] cursor-pointer">
             <img
               className="w-[1.019rem] h-[1.019rem] relative object-cover"
               alt=""

@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
 import { axiosInstance } from "../../config/axioInstance";
 import { useDispatch, useSelector } from "react-redux"
-import { clearCart, decrement, increment, setCartItems } from "../../redux/features/cartSlice"
+import { addToCart, clearCart, decrement, increment, setCartItems } from "../../redux/features/cartSlice"
 import { useNavigate, useParams } from "react-router-dom"
 import debounce from 'lodash.debounce'
 
@@ -12,16 +12,17 @@ export const CheckoutPage = () => {
     const { id } = useParams()
     const [restaurant, setRestaurant] = useState({})
     const cartItems = useSelector((state) => state.cart.cartItems)
-    
     const totalQuantity = cartItems.reduce((total, item) => total + item.quantity, 0); // Calculate total quantity
     const [isCartEmpty, setIsCartEmpty] = useState(totalQuantity === 0); // Track if cart is empty
     const [couponCode, setCouponCode] = useState('');
     const [discount, setDiscount] = useState(0);
     const [error, setError] = useState('');
-    // const totalAmount = useSelector((state) => state.cart.cartTotalAmount);
     const [isAddressSelected, setIsAddressSelected] = useState(false);
+    const [selectedAddress, setSelectedAddress] = useState(null);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
+    const [userName, setUserName] = useState('Guest');
+
     const [newAddress, setNewAddress] = useState({
         street: '',
         city: '',
@@ -30,10 +31,8 @@ export const CheckoutPage = () => {
         country: '',
     });
     const [savedAddress, setSavedAddress] = useState(null);
-
     const navigate = useNavigate()
     const dispatch = useDispatch()
-
     const couponDiscounts = {
         FLAT10: 10,
         FLAT15: 15,
@@ -47,6 +46,22 @@ export const CheckoutPage = () => {
         window.scrollTo(0, 0); // Scroll to the top of the page
     }, []); // Empty dependency array ensures this runs only on mount
 
+    //Fetch user profile
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const response = await axiosInstance.get('/user/profile', { withCredentials: true });
+                console.log(response);
+
+                setUserName(response.data.name);
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+            }
+        };
+
+        fetchUser();
+    }, []);
+
     // Fetch cart on component mount
     useEffect(() => {
         const fetchCart = async () => {
@@ -59,7 +74,6 @@ export const CheckoutPage = () => {
                 });
 
                 const fetchedCartItems = response.data.cart.cartItems;
-                
 
                 // Ensure that either _id or menuItem exists and quantity is > 0
                 const validCartItems = fetchedCartItems.filter(item => (item._id || item.menuItem) && item.quantity > 0);
@@ -125,18 +139,6 @@ export const CheckoutPage = () => {
         }
     }, [cartItems]); // Only run this effect when cartItems change
 
-
-    //decrement logic
-    // const handleDecrement = (item) => {
-    //     dispatch(decrement(item._id || item.menuItem)); // Dispatch decrement action
-    //     const totalQuantity = cartItems.reduce((total, cartItem) => total + cartItem.quantity, 0);
-
-    //     if (totalQuantity <= 1) {
-    //         clearCartOnServer(); // Call function to clear the cart on server
-    //         setIsCartEmpty(true); // Show 'Your cart is empty' message
-    //     }
-    // };
-
     const handleOpenForm = () => {
         setIsFormOpen(true);
         setTimeout(() => setIsVisible(true), 10); // Small delay to trigger the fade-in transition
@@ -148,7 +150,10 @@ export const CheckoutPage = () => {
     };
 
     const handleDeliverButtonClick = () => {
-        setIsAddressSelected(true);  // When user clicks 'Deliver Here' button
+        if (defaultAddress) {
+            setIsAddressSelected(true);
+            setSelectedAddress(defaultAddress);  // Set selected address
+        }  // When user clicks 'Deliver Here' button
     };
 
     const fadeStyles = {
@@ -177,10 +182,6 @@ export const CheckoutPage = () => {
             const addresses = response.data.addresses;
             // Set the saved address in state
             setSavedAddress(addresses[addresses.length - 1]);
-
-            // Close form and mark address as selected
-            // setIsFormOpen(false);
-            // setIsAddressSelected(true);
 
             // Close the form
             handleCloseForm();
@@ -295,13 +296,13 @@ export const CheckoutPage = () => {
                 deliveryFee,
                 taxRate,
                 grandTotal,
-                customerName: 'John Doe',
+                customerName: userName,
                 customerAddress: {
-                    line1: '123 Main St',
-                    city: 'New York',
+                    line1: selectedAddress.street,
+                    city: selectedAddress.city,
                     state: 'KL',
-                    country: 'IN',
-                    postal_code: '10001'
+                    country: selectedAddress.country,
+                    postal_code: selectedAddress.zip
                 }
             };
 
@@ -325,6 +326,7 @@ export const CheckoutPage = () => {
                 handler: function (response) {
                     alert(`Payment successful! Payment ID: ${response.razorpay_payment_id}`);
                     dispatch(clearCart())
+                    clearCartOnServer()
                     // Handle post-payment tasks, like updating the database
                     navigate('/user/profile'); // Redirect to orders page
                 },
@@ -371,253 +373,250 @@ export const CheckoutPage = () => {
     return (
         <>
             <div className="px-[1rem]  md:px-[2rem] lg:px-[10rem] xl:px-[25rem]  bg-bg-white text-dark">
-                <div className="pt-[1rem]">
-                    <div className="h-full w-[70.5rem] flex flex-col items-start justify-start box-border gap-[2.012rem] max-w-full">
-                        <div className="self-stretch flex flex-col items-start justify-start pl-[0.5rem] pr-[0rem] box-border shrink-0 max-w-full">
-                            <b className="text-dark font-bold text-[1.2rem] sm:text-[1.4rem] lg:py-[1rem]">Select delivery address</b>
-                            <b className="text-sm lg:text-mid font-normal text-label-tint pt-[1rem] lg:py-[.5rem]">Select your address or add a new one</b>
+                {isCartEmpty ? <div className="flex justify-center items-center h-96">
+                    <b>Your cart is empty</b>
+                </div> : (
+                    <div>
+                        <div className="pt-[1rem]">
+                            <div className="h-full w-[70.5rem] flex flex-col items-start justify-start box-border gap-[2.012rem] max-w-full">
+                                <div className="self-stretch flex flex-col items-start justify-start pl-[0.5rem] pr-[0rem] box-border shrink-0 max-w-full">
+                                    <b className="text-dark font-bold text-[1.2rem] sm:text-[1.4rem] lg:py-[1rem]">Select delivery address</b>
+                                    <b className="text-sm lg:text-mid font-normal text-label-tint pt-[1rem] lg:py-[.5rem]">Select your address or add a new one</b>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-                <div className=" bg-bg-white text-dark  pt-[2rem] box-border text-left text-[1.5rem] font-montserrat">
-                    <div className="h-full w-[70.5rem] flex flex-col box-border gap-[2.012rem] max-w-full">
-                        <div className="self-stretch flex flex-col pl-[0.5rem] pr-[0rem] box-border shrink-0 max-w-full">
-                            <div className="flex flex-col gap-[2rem] sm:flex sm:flex-row w-12/12 justify-between pb-[4rem]">
-                                <div className="addressSection flex w-6/12 flex-col bg-bg-white text-dark gap-[3rem]">
-                                    <div className="w-[18rem] sm:w-full">
-                                        <div className="sm:py-[1rem] border-2 border-solid border-selection-tint rounded-2xl">
-                                            <div className="sm:px-[2rem] px-[1rem] py-[2rem] flex flex-col">
-                                                <div className="flex gap-3 border-b-2 border-solid border-selection-tint pb-[2rem]">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" stroke="currentColor" className="text-dark">
-                                                        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" fill="none" strokeWidth="1" />
-                                                    </svg>
-                                                    <div className="flex flex-col">
-                                                        <b className="text-lg">Home</b>
-                                                        <b className="addressSection text-sm font-normal text-label-tint py-1">
-                                                            {defaultAddress ? (
-                                                                <>
-                                                                    {defaultAddress.street}, {defaultAddress.state}, {defaultAddress.city}
-                                                                    <br />
-                                                                    {defaultAddress.zip}, {defaultAddress.country}
-                                                                </>
-                                                            ) : (
-                                                                "No address found"
-                                                            )}
-                                                        </b>
-                                                        <div className="text-sm py-[1.5rem]">
-                                                            <b>40 mins</b>
+                        <div className=" bg-bg-white text-dark  pt-[2rem] box-border text-left text-[1.5rem] font-montserrat ">
+                            <div className="h-full w-[70.5rem] flex flex-col box-border gap-[2.012rem] max-w-full">
+                                <div className="self-stretch flex flex-col pl-[0.5rem] pr-[0rem] box-border shrink-0 max-w-full">
+                                    <div className="flex flex-col gap-[2rem] sm:flex sm:flex-row w-12/12 justify-between pb-[4rem]">
+                                        <div className="addressSection flex w-6/12 flex-col bg-bg-white text-dark gap-[3rem]">
+                                            <div className="w-[18rem] sm:w-full">
+                                                <div className="sm:py-[1rem] border-2 border-solid border-selection-tint rounded-2xl">
+                                                    <div className="sm:px-[2rem] px-[1rem] py-[2rem] flex flex-col">
+                                                        <div className="flex gap-3 border-b-2 border-solid border-selection-tint pb-[2rem]">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" stroke="currentColor" className="text-dark">
+                                                                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" fill="none" strokeWidth="1" />
+                                                            </svg>
+                                                            <div className="flex flex-col">
+                                                                <b className="text-lg">Home</b>
+                                                                <b className="addressSection text-sm font-normal text-label-tint py-[1rem] pb-[1rem]">
+                                                                    {defaultAddress ? (
+                                                                        <>
+                                                                            {defaultAddress.street}, {defaultAddress.state}, {defaultAddress.city}
+                                                                            <br />
+                                                                            {defaultAddress.zip}, {defaultAddress.country}
+                                                                        </>
+                                                                    ) : (
+                                                                        "No address found"
+                                                                    )}
+                                                                </b>
+                                                                {defaultAddress && (
+                                                                    <div className="bg-tradewind w-[12rem] h-[1rem] flex items-center justify-center py-[1rem] cursor-pointer rounded-md hover:shadow-lg hover:outline hover:outline-[.3rem] hover:outline-white transition duration-300">
+                                                                        <b onClick={handleDeliverButtonClick} className="deliverButton text-mid text-bg-white">DELIVER HERE</b>
+                                                                    </div>
+                                                                )}
+                                                            </div>
                                                         </div>
-
-                                                        <div className="bg-tradewind w-[12rem] h-[1rem] flex items-center justify-center py-[1rem] cursor-pointer rounded-md hover:shadow-lg hover:outline hover:outline-[.3rem] hover:outline-white transition duration-300">
-                                                            <b onClick={handleDeliverButtonClick} className="deliverButton text-mid text-bg-white">DELIVER HERE</b>
-                                                        </div>
-
-                                                    </div>
-                                                </div>
-                                                <div className="flex gap-3 pt-[2rem]">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" stroke="currentColor" className="text-dark">
-                                                        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" fill="none" strokeWidth="1" />
-                                                    </svg>
-                                                    <div>
-                                                        <div className="flex flex-col pb-[1.5rem]">
-                                                            <b className="text-lg">Add new address</b>
-                                                            {savedAddress && (
-                                                                <b className="newSavedAddress text-sm font-normal text-label-tint py-1">{savedAddress.street}, {savedAddress.city}, {savedAddress.state}, {savedAddress.zip}</b>
-                                                            )}
-                                                        </div>
-                                                        <div className="border-solid border-[.2rem] border-tradewind w-[12rem] h-[1rem] flex items-center justify-center py-[1rem] cursor-pointer rounded-md hover:shadow-lg hover:border-[.2rem] hover:border-solid hover:border-tradewind hover:py-[1rem] transition duration-300">
-                                                            <b onClick={handleOpenForm} className="addButton text-mid text-tradewind">ADD NEW</b>
+                                                        <div className="flex gap-3 pt-[2rem]">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" stroke="currentColor" className="text-dark">
+                                                                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" fill="none" strokeWidth="1" />
+                                                            </svg>
+                                                            <div>
+                                                                <div className="flex flex-col pb-[1.5rem]">
+                                                                    <b className="text-lg">Add new address</b>
+                                                                    {savedAddress && (
+                                                                        <b className="newSavedAddress text-sm font-normal text-label-tint py-1">{savedAddress.street}, {savedAddress.city}, {savedAddress.state}, {savedAddress.zip}</b>
+                                                                    )}
+                                                                </div>
+                                                                <div className="border-solid border-[.2rem] border-tradewind w-[12rem] h-[1rem] flex items-center justify-center py-[1rem] cursor-pointer rounded-md hover:shadow-lg hover:border-[.2rem] hover:border-solid hover:border-tradewind hover:py-[1rem] transition duration-300">
+                                                                    <b onClick={handleOpenForm} className="addButton text-mid text-tradewind">ADD NEW</b>
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-                                <div
-                                    className={`paymentSection bg-bg-white text-dark ${!isAddressSelected ? 'disabled' : ''}`}
-                                    style={{ pointerEvents: !isAddressSelected ? 'none' : 'auto', opacity: !isAddressSelected ? 0.5 : 1 }}
-                                >
-                                    <div className="w-[18rem] sm:w-full">
-                                        {isCartEmpty ? (
-                                            <div className="flex justify-center items-center h-full">
-                                                <b>Your cart is empty</b>
-                                            </div>
-                                        ) : (
-                                            <div className="px-[1rem] py-[1rem] sm:py-[2rem] sm:px-[4rem] h-auto flex flex-col gap-[2rem] border-2 border-solid border-selection-tint rounded-2xl">
-                                                <div className="flex gap-3">
-                                                    {console.log(cartItems)}
-                                                    <div className="w-[6rem] h-[6rem] border-4 border-solid border-white rounded-xl shadow-md" style={{
-                                                        backgroundImage: `url(${cartItems[0].image})`, backgroundSize: 'cover',
-                                                        backgroundPosition: 'left center',
-                                                    }} />
-                                                    <div className="flex flex-col gap-3">
-                                                        <b className="restaurantName text-xl text-dark">{restaurant.name}</b>
-                                                        <b className="restaurantName text-mid text-label-tint font-normal">{restaurant.location}</b>
-                                                    </div>
-                                                </div>
-                                                <div className="itemScroll overflow-y-auto  flex flex-col justify-center">
-                                                    {cartItems.map(item => (
-                                                        <div key={item._id} className="itemImageSection flex flex-col gap-3 sm:flex sm:flex-row sm:justify-between sm:items-center py-[1rem] ">
-                                                            <div className="flex gap-3 sm:w-[8.7rem]">
-                                                                {item.veg ? (
-                                                                    <img src="/veg.svg" alt="veg" className="w-[1rem] h-auto" />
-                                                                ) : (
-                                                                    <img src="/non-veg.svg" alt="non-veg" className="w-[1rem] h-auto" />
-                                                                )}
-                                                                <b className="text-mid text-dark font-normal">{item.name}</b>
-                                                            </div>
-                                                            <div className="flex justify-between gap-3 items-center">
-                                                                <div className="w-[7rem] h-[2rem] flex items-center justify-between px-[1rem] text-tradewind text-mid font-bold gap-3 bg-bg-white border-[.3rem] border-solid border-white rounded-lg shadow-lmd">
-                                                                    <button
-                                                                        onClick={() => handleDecrement(item)}
-                                                                        className="bg-transparent text-xl font-bold flex justify-center rounded-md text-tradewind cursor-pointer">
-                                                                        -
-                                                                    </button>
-
-                                                                    <span className="font-bold">
-                                                                        {item.quantity}
-                                                                    </span>
-
-                                                                    <button
-                                                                        onClick={() => handleIncrement(item)}
-                                                                        className="bg-transparent text-xl font-bold flex justify-center rounded-md text-tradewind cursor-pointer">
-                                                                        +
-                                                                    </button>
-                                                                </div>
-                                                                <b className="font-normal text-mid">₹{item.price}</b>
+                                        <div
+                                            className={`paymentSection bg-bg-white text-dark ${!isAddressSelected ? 'disabled' : ''}`}
+                                            style={{ pointerEvents: !isAddressSelected ? 'none' : 'auto', opacity: !isAddressSelected ? 0.5 : 1 }}
+                                        >
+                                            <div className="w-[18rem] sm:w-full">                                              
+                                                    <div className="px-[1rem] py-[1rem] sm:py-[2rem] sm:px-[4rem] h-auto flex flex-col gap-[2rem] border-2 border-solid border-selection-tint rounded-2xl">
+                                                        <div className="flex gap-3">
+                                                            {console.log(cartItems)}
+                                                            <div className="w-[6rem] h-[6rem] border-4 border-solid border-white rounded-xl shadow-md" style={{
+                                                                backgroundImage: `url(${cartItems[0].image})`, backgroundSize: 'cover',
+                                                                backgroundPosition: 'left center',
+                                                            }} />
+                                                            <div className="flex flex-col gap-3">
+                                                                <b className="restaurantName text-xl text-dark">{restaurant.name}</b>
+                                                                <b className="restaurantName text-mid text-label-tint font-normal">{restaurant.location}</b>
                                                             </div>
                                                         </div>
-                                                    ))}
+                                                        <div className="itemScroll overflow-y-auto h-[6rem] flex flex-col justify-center">
+                                                            {cartItems.map(item => (
+                                                                <div key={item._id} className="itemImageSection flex flex-col gap-3 sm:flex sm:flex-row sm:justify-between sm:items-center py-[1rem] ">
+                                                                    <div className="flex gap-3 sm:w-[8.7rem]">
+                                                                        {item.veg ? (
+                                                                            <img src="/veg.svg" alt="veg" className="w-[1rem] h-auto" />
+                                                                        ) : (
+                                                                            <img src="/non-veg.svg" alt="non-veg" className="w-[1rem] h-auto" />
+                                                                        )}
+                                                                        <b className="text-mid text-dark font-normal">{item.name}</b>
+                                                                    </div>
+                                                                    <div className="flex justify-between gap-3 items-center">
+                                                                        <div className="w-[7rem] h-[2rem] flex items-center justify-between px-[1rem] text-tradewind text-mid font-bold gap-3 bg-bg-white border-[.3rem] border-solid border-white rounded-lg shadow-lmd">
+                                                                            <button
+                                                                                onClick={() => handleDecrement(item)}
+                                                                                className="bg-transparent text-xl font-bold flex justify-center rounded-md text-tradewind cursor-pointer">
+                                                                                -
+                                                                            </button>
+
+                                                                            <span className="font-bold">
+                                                                                {item.quantity}
+                                                                            </span>
+
+                                                                            <button
+                                                                                onClick={() => handleIncrement(item)}
+                                                                                className="bg-transparent text-xl font-bold flex justify-center rounded-md text-tradewind cursor-pointer">
+                                                                                +
+                                                                            </button>
+                                                                        </div>
+                                                                        <b className="font-normal text-mid">₹{item.price}</b>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                        <div className="">
+                                                            <b>Bill details</b>
+                                                            <div className="flex justify-between pt-5">
+                                                                <b className="text-label-tint font-normal text-mid">Item Total</b>
+                                                                <b className="text-label-tint font-normal text-mid">₹{totalPrice}</b>
+                                                            </div>
+                                                            <div className="flex justify-between py-5">
+                                                                <b className="text-label-tint font-normal text-mid">Delivery Fee</b>
+                                                                <b className="text-label-tint font-normal text-mid">₹{deliveryFee}</b>
+                                                            </div>
+                                                            <div className="py-[.5rem]">
+                                                                <div className="w-full border-[.08rem] border-solid border-selection-tint" />
+                                                            </div>
+                                                            <div className="flex justify-between py-[1rem]">
+                                                                <b className="text-label-tint font-normal text-mid">GST & Restaurant Charges</b>
+                                                                <b className="text-label-tint font-normal text-mid">₹{taxRate}</b>
+                                                            </div>
+                                                            <div className="flex justify-between gap-4 pb-[2rem]">
+
+                                                                <input
+                                                                    className="border-2 border-solid border-selection-tint bg-bg-white text-label-tint rounded-md h-10 w-full placeholder:text-selection-tint placeholder:pl-3"
+                                                                    type="text"
+                                                                    id="coupon"
+                                                                    value={couponCode}
+                                                                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                                                                    placeholder="Enter coupon code"
+                                                                />
+                                                                <button className="bg-tradewind text-bg-white w-[6rem] rounded-md cursor-pointer hover:shadow-lg hover:outline hover:outline-[.2rem] hover:outline-white transition duration-300" onClick={handleApplyCoupon}>Apply</button>
+                                                            </div>
+
+                                                            {error && <p style={{ color: 'red' }}>{error}</p>}
+
+                                                            {discount > 0 && <p>You saved {discount}%!</p>}
+                                                            <div className="pb-[1rem]">
+                                                                <div className="w-full border-[.1rem] border-solid border-tradewind" />
+                                                            </div>
+                                                            <div disabled={!isAddressSelected} onClick={handlePayment} className="flex justify-between py-[1rem] bg-tradewind items-center w-full h-[3rem] px-[1rem] text-bg-white text-xl rounded-[.5rem] cursor-pointer hover:shadow-xl hover:outline hover:outline-[.3rem] hover:outline-white transition duration-300">
+                                                                <b>TO PAY</b>
+                                                                <b>₹{discount > 0 ? discountedAmount.toFixed(2) : grandTotal}</b>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                            </div>
+                                        </div>
+                                        {/* Popup Form for Adding Address */}
+                                        {isFormOpen && (
+                                            <div className={`fixed inset-0 z-50 bg-black bg-opacity-50 flex justify-center items-center ${isFormOpen ? 'opacity-100' : 'opacity-0'}`}>
+                                                <div style={fadeStyles} className={`bg-bg-white p-6 rounded-2xl w-full max-w-md transform transition-transform duration-300 ease-in-out ${isFormOpen ? 'scale-100' : 'scale-0'}`}>
+                                                    <h2 className="text-xl font-bold mb-4">Add New Address</h2>
+                                                    <form className="space-y-4">
+                                                        <div>
+                                                            <label className="block mb-1 text-lg text-label-tint">
+                                                                Street:
+                                                            </label>
+                                                            <input
+                                                                type="text"
+                                                                name="street"
+                                                                value={newAddress.street}
+                                                                onChange={handleInputChange}
+                                                                required
+                                                                className="w-full px-3 py-2 bg-bg-white text-dark border-[.1rem] border-solid border-selection-tint rounded-md focus:outline-none focus:border-tradewind"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block mb-1 text-lg text-label-tint">
+                                                                City:
+                                                            </label>
+                                                            <input
+                                                                type="text"
+                                                                name="city"
+                                                                value={newAddress.city}
+                                                                onChange={handleInputChange}
+                                                                required
+                                                                className="w-full px-3 py-2 bg-bg-white text-dark border-[.1rem] border-solid border-selection-tint rounded-md focus:outline-none focus:border-tradewind"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block mb-1 text-lg text-label-tint">
+                                                                Zip Code:
+                                                            </label>
+                                                            <input
+                                                                type="text"
+                                                                name="zipCode"
+                                                                value={newAddress.zipCode}
+                                                                onChange={handleInputChange}
+                                                                required
+                                                                className="w-full px-3 py-2 bg-bg-white text-dark border-[.1rem] border-solid border-selection-tint rounded-md focus:outline-none focus:border-tradewind"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block mb-1 text-lg text-label-tint">
+                                                                Country:
+                                                            </label>
+                                                            <input
+                                                                type="text"
+                                                                name="country"
+                                                                value={newAddress.country}
+                                                                onChange={handleInputChange}
+                                                                required
+                                                                className="w-full px-3 py-2 bg-bg-white text-dark border-[.1rem] border-solid border-selection-tint rounded-md focus:outline-none focus:border-tradewind"
+                                                            />
+                                                        </div>
+                                                        <div className="flex justify-between">
+                                                            <button
+                                                                onClick={handleSaveAddress}
+                                                                type="submit"
+                                                                // style={{ pointerEvents: !isAddressSelected ? 'none' : 'auto', opacity: !isAddressSelected ? 0.5 : 1 }}
+                                                                className={`bg-bg-white border-[.15rem] border-solid border-tradewind text-tradewind w-[12rem] font-bold text-lg flex items-center justify-center py-2 cursor-pointer rounded-lg hover:shadow-xl hover:py-[.7rem] hover:border-0 hover:bg-tradewind hover:text-bg-white transition duration-150`}
+                                                            >
+                                                                Save Address
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={handleCloseForm}
+                                                                className="bg-bg-white border-[.15rem] border-solid border-tradewind text-tradewind w-[12rem] font-bold text-lg flex items-center justify-center py-2 cursor-pointer rounded-lg hover:shadow-xl hover:py-[.7rem] hover:border-0 hover:bg-tradewind hover:text-bg-white transition duration-150"
+                                                            >
+                                                                Cancel
+                                                            </button>
+                                                        </div>
+                                                    </form>
                                                 </div>
-                                                <div className="">
-                                                    <b>Bill details</b>
-                                                    <div className="flex justify-between pt-5">
-                                                        <b className="text-label-tint font-normal text-mid">Item Total</b>
-                                                        <b className="text-label-tint font-normal text-mid">₹{totalPrice}</b>
-                                                    </div>
-                                                    <div className="flex justify-between py-5">
-                                                        <b className="text-label-tint font-normal text-mid">Delivery Fee</b>
-                                                        <b className="text-label-tint font-normal text-mid">₹{deliveryFee}</b>
-                                                    </div>
-                                                    <div className="py-[.5rem]">
-                                                        <div className="w-full border-[.08rem] border-solid border-selection-tint" />
-                                                    </div>
-                                                    <div className="flex justify-between py-[1rem]">
-                                                        <b className="text-label-tint font-normal text-mid">GST & Restaurant Charges</b>
-                                                        <b className="text-label-tint font-normal text-mid">₹{taxRate}</b>
-                                                    </div>
-                                                    <div className="flex justify-between gap-4 pb-[2rem]">
-
-                                                        <input
-                                                            className="border-2 border-solid border-selection-tint bg-bg-white text-label-tint rounded-md h-10 w-full placeholder:text-selection-tint placeholder:pl-3"
-                                                            type="text"
-                                                            id="coupon"
-                                                            value={couponCode}
-                                                            onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                                                            placeholder="Enter coupon code"
-                                                        />
-                                                        <button className="bg-tradewind text-bg-white w-[6rem] rounded-md cursor-pointer hover:shadow-lg hover:outline hover:outline-[.2rem] hover:outline-white transition duration-300" onClick={handleApplyCoupon}>Apply</button>
-                                                    </div>
-
-                                                    {error && <p style={{ color: 'red' }}>{error}</p>}
-
-                                                    {discount > 0 && <p>You saved {discount}%!</p>}
-                                                    <div className="pb-[1rem]">
-                                                        <div className="w-full border-[.1rem] border-solid border-tradewind" />
-                                                    </div>
-                                                    <div disabled={!isAddressSelected} onClick={handlePayment} className="flex justify-between py-[1rem] bg-tradewind items-center w-full h-[3rem] px-[1rem] text-bg-white text-xl rounded-[.5rem] cursor-pointer hover:shadow-xl hover:outline hover:outline-[.3rem] hover:outline-white transition duration-300">
-                                                        <b>TO PAY</b>
-                                                        <b>₹{discount > 0 ? discountedAmount.toFixed(2) : grandTotal}</b>
-                                                    </div>
-                                                </div>
-
                                             </div>
                                         )}
                                     </div>
                                 </div>
-                                {/* Popup Form for Adding Address */}
-                                {isFormOpen && (
-                                    <div className={`fixed inset-0 z-50 bg-black bg-opacity-50 flex justify-center items-center ${isFormOpen ? 'opacity-100' : 'opacity-0'}`}>
-                                        <div style={fadeStyles} className={`bg-bg-white p-6 rounded-2xl w-full max-w-md transform transition-transform duration-300 ease-in-out ${isFormOpen ? 'scale-100' : 'scale-0'}`}>
-                                            <h2 className="text-xl font-bold mb-4">Add New Address</h2>
-                                            <form className="space-y-4">
-                                                <div>
-                                                    <label className="block mb-1 text-lg text-label-tint">
-                                                        Street:
-                                                    </label>
-                                                    <input
-                                                        type="text"
-                                                        name="street"
-                                                        value={newAddress.street}
-                                                        onChange={handleInputChange}
-                                                        required
-                                                        className="w-full px-3 py-2 bg-bg-white text-dark border-[.1rem] border-solid border-selection-tint rounded-md focus:outline-none focus:border-tradewind"
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <label className="block mb-1 text-lg text-label-tint">
-                                                        City:
-                                                    </label>
-                                                    <input
-                                                        type="text"
-                                                        name="city"
-                                                        value={newAddress.city}
-                                                        onChange={handleInputChange}
-                                                        required
-                                                        className="w-full px-3 py-2 bg-bg-white text-dark border-[.1rem] border-solid border-selection-tint rounded-md focus:outline-none focus:border-tradewind"
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <label className="block mb-1 text-lg text-label-tint">
-                                                        Zip Code:
-                                                    </label>
-                                                    <input
-                                                        type="text"
-                                                        name="zipCode"
-                                                        value={newAddress.zipCode}
-                                                        onChange={handleInputChange}
-                                                        required
-                                                        className="w-full px-3 py-2 bg-bg-white text-dark border-[.1rem] border-solid border-selection-tint rounded-md focus:outline-none focus:border-tradewind"
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <label className="block mb-1 text-lg text-label-tint">
-                                                        Country:
-                                                    </label>
-                                                    <input
-                                                        type="text"
-                                                        name="country"
-                                                        value={newAddress.country}
-                                                        onChange={handleInputChange}
-                                                        required
-                                                        className="w-full px-3 py-2 bg-bg-white text-dark border-[.1rem] border-solid border-selection-tint rounded-md focus:outline-none focus:border-tradewind"
-                                                    />
-                                                </div>
-                                                <div className="flex justify-between">
-                                                    <button
-                                                        onClick={handleSaveAddress}
-                                                        type="submit"
-                                                        className="bg-bg-white border-[.15rem] border-solid border-tradewind text-tradewind w-[12rem] font-bold text-lg flex items-center justify-center py-2 cursor-pointer rounded-lg hover:shadow-xl hover:py-[.7rem] hover:border-0 hover:bg-tradewind hover:text-bg-white transition duration-150"
-                                                    >
-                                                        Save Address
-                                                    </button>
-                                                    <button
-                                                        type="button"
-                                                        onClick={handleCloseForm}
-                                                        className="bg-bg-white border-[.15rem] border-solid border-tradewind text-tradewind w-[12rem] font-bold text-lg flex items-center justify-center py-2 cursor-pointer rounded-lg hover:shadow-xl hover:py-[.7rem] hover:border-0 hover:bg-tradewind hover:text-bg-white transition duration-150"
-                                                    >
-                                                        Cancel
-                                                    </button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                )}
                             </div>
                         </div>
                     </div>
-                </div>
+                )}
             </div>
         </>
     )
