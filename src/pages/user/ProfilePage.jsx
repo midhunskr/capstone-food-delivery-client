@@ -19,6 +19,8 @@ export const ProfilePage = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [loadingMore, setLoadingMore] = useState(false);
     const [rating, setRating] = useState({})
+    const [name, setName] = useState(user?.name || '');
+    const [email, setEmail] = useState(user?.email || '');
 
     // User Logout
     const handleLogout = async () => {
@@ -205,6 +207,18 @@ export const ProfilePage = () => {
         { name: 'Logout' }
     ];
 
+    const handleSubmit = async (e) => {
+        e.preventDefault(); // Prevent default form submission
+
+        try {
+            const response = await axiosInstance.put('/user/update', { name, email }); // Update your API endpoint
+            console.log(response.data); // Handle response as needed
+            alert('Profile updated successfully!'); // Show success message
+        } catch (error) {
+            console.error('Error updating profile:', error);
+            alert('Failed to update profile. Please try again.'); // Show error message
+        }
+    };
 
     // Render section content
     const renderSectionContent = () => {
@@ -387,19 +401,21 @@ export const ProfilePage = () => {
                     <div className="bg-bg-white p-4 rounded-lg w-1/2">
                         <h2 className="text-lg font-bold mb-4">Update Profile</h2>
                         {/* Update Profile Form */}
-                        <form>
+                        <form onSubmit={handleSubmit}>
                             <div className="flex flex-col gap-4">
                                 <input
                                     type="text"
                                     placeholder="Name"
                                     className="p-2 border border-solid border-selection-tint rounded bg-bg-white text-dark"
-                                    defaultValue={user?.name}
+                                    defaultValue={name}
+                                    onChange={(e) => setName(e.target.value)}
                                 />
                                 <input
                                     type="email"
                                     placeholder="Email"
                                     className="p-2 border border-solid border-selection-tint rounded bg-bg-white text-dark"
-                                    defaultValue={user?.email}
+                                    defaultValue={email}
+                                    onChange={(e) => setEmail(e.target.value)}
                                 />
                                 <button type="submit" className="bg-tradewind text-white p-2 rounded cursor-pointer">Update</button>
                             </div>
